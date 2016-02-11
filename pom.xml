@@ -9,6 +9,13 @@
 	<packaging>jar</packaging>
 	<name>Hifive</name>
 	
+	<organization>
+		<name>Raphcal</name>
+		<url>https://github.com/Raphcal</url>
+	</organization>
+	
+	<inceptionYear>2016</inceptionYear>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -19,6 +26,15 @@
 					<source>1.7</source>
 					<target>1.7</target>
 					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<version>1.8</version>
+				<configuration>
+					<licenseName>lgpl_v3</licenseName>
 				</configuration>
 			</plugin>
 			
