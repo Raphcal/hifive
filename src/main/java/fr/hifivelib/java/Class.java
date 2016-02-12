@@ -39,13 +39,22 @@ public class Class implements Node {
 	
 	private Collection<Class> imports;
 	private Collection<Annotation<?>> annotations;
+	private Class superclass;
+	private Collection<Class> interfaces;
+	
 	private Collection<String> authors;
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Node parent() {
 		return parent;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Collection<Node> children() {
 		return innerClasses;

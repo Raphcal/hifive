@@ -22,17 +22,16 @@ package fr.hifivelib.java;
  * #L%
  */
 
-import java.io.File;
+import java.util.Collection;
 
 /**
- * Parser of Java source files.
+ * Represent a field from a class.
  * 
- * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
+ * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-public class JavaParser {
+public class Field {
 	
-	public Class parseSourceFile(final File sourceFile) {
-		return null;
-	}
+	private String name;
+	private Collection<Annotation<?>> annotations;
 	
 }

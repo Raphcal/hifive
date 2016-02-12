@@ -22,17 +22,16 @@ package fr.hifivelib.java;
  * #L%
  */
 
-import java.io.File;
-
 /**
- * Parser of Java source files.
+ * Environment of the java parser.
  * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
-public class JavaParser {
+public class JavaParserEnvironment {
 	
-	public Class parseSourceFile(final File sourceFile) {
-		return null;
-	}
+	/**
+	 * Current parser state.
+	 */
+	private JavaParserState state = JavaParserState.WAITING_FOR_PACKAGE_DECLARATION;
 	
 }
