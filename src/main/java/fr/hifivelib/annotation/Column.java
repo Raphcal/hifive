@@ -4,7 +4,7 @@ package fr.hifivelib.annotation;
  * #%L
  * Hifive
  * %%
- * Copyright (C) 2016 Raphcal
+ * Copyright (C) 2016 Raphaël Calabro
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -23,11 +23,18 @@ package fr.hifivelib.annotation;
  */
 
 /**
- *
+ * Column of a table.
+ * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
 public @interface Column {
 	
-	String name();
+	/**
+	 * Name of the column in the database. If empty or not specified, the name
+	 * of the field will be used.
+	 * 
+	 * @return Name of the column.
+	 */
+	String name() default "";
 	
 }
