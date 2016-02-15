@@ -31,7 +31,15 @@ import java.io.File;
  */
 public class JavaParser {
 	
-	public Class parseSourceFile(final File sourceFile) {
+	public Class parseSourceFromFile(final File sourceFile) {
+		return parse();
+	}
+	
+	public Class parseSourceFromString(final String source) {
+		return parse();
+	}
+	
+	private Class parse() {
 		return null;
 	}
 	
