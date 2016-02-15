@@ -37,5 +37,10 @@ public enum JavaParserState {
 	METHOD,
 	LINE_END_COMMENT,
 	BLOC_COMMENT,
-	JAVADOC
+	JAVADOC;
+	
+	public void execute(JavaParserEnvironment environment) {
+		// No action.
+	}
+			
 }
