@@ -23,6 +23,7 @@ package fr.hifivelib.java;
  */
 
 import java.io.File;
+import java.util.Iterator;
 
 /**
  * Parser of Java source files.
@@ -32,15 +33,21 @@ import java.io.File;
 public class JavaParser {
 	
 	public Class parseSourceFromFile(final File sourceFile) {
-		return parse();
+		return parse(null);
 	}
 	
 	public Class parseSourceFromString(final String source) {
-		return parse();
+		return parse(new StringWordIterator(source));
 	}
 	
-	private Class parse() {
-		return null;
+	private Class parse(final Iterator<String> wordIterator) {
+		final JavaParserEnvironment environment = new JavaParserEnvironment(wordIterator);
+		
+		while (environment.hasNext()) {
+			environment.getState().execute(environment);
+		}
+		
+		return environment.getPublicClass();
 	}
 	
 }

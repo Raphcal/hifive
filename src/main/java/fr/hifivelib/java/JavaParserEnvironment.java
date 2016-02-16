@@ -1,5 +1,6 @@
 package fr.hifivelib.java;
 
+import java.util.ArrayDeque;
 import java.util.Iterator;
 
 /*
@@ -34,17 +35,22 @@ public class JavaParserEnvironment {
 	/**
 	 * Current parser state.
 	 */
-	private JavaParserState state = JavaParserState.WAITING_FOR_PACKAGE_DECLARATION;
+	private JavaParserState state = JavaParserState.WAITING_FOR_CLASS;
 	
-	private Iterator<String> wordIterator;
-	
+	private final Iterator<String> wordIterator;
 	private String lastWord;
 	
+	private Class publicClass = new Class();
+
+	public JavaParserEnvironment(final Iterator<String> wordIterator) {
+		this.wordIterator = wordIterator;
+	}
+
 	public boolean hasNext() {
 		return wordIterator.hasNext() || lastWord != null;
 	}
 	
-	public String next() {
+	public String nextWord() {
 		if (wordIterator.hasNext()) {
 			lastWord = wordIterator.next();
 		} else {
@@ -53,8 +59,20 @@ public class JavaParserEnvironment {
 		return lastWord;
 	}
 	
-	public String last() {
+	public String lastWord() {
 		return lastWord;
+	}
+	
+	public JavaParserState getState() {
+		return state;
+	}
+
+	public void setState(JavaParserState state) {
+		this.state = state;
+	}
+
+	public Class getPublicClass() {
+		return publicClass;
 	}
 	
 }

@@ -23,17 +23,72 @@ package fr.hifivelib.java;
  */
 
 /**
- *
+ * States of the java parser. The actual parsing is done in this class.
+ * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
 public enum JavaParserState {
 	
-	WAITING_FOR_PACKAGE_DECLARATION,
-	PACKAGE_DECLARATION,
-	WAITING_FOR_IMPORTS,
-	IMPORT_DECLARATION,
+	WAITING_FOR_CLASS {
+
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			switch (word) {
+			case "package":
+				environment.setState(PACKAGE_DECLARATION);
+				break;
+			case "import":
+				environment.setState(IMPORT_DECLARATION);
+				break;
+			case "public":
+			case "protected":
+			case "private":
+			case "class":
+				environment.setState(CLASS_START);
+				break;
+			default:
+				if (!word.isEmpty() && word.charAt(0) == '@') {
+					environment.setState(CLASS_START);
+				}
+				break;
+			}
+		}
+		
+	},
+	PACKAGE_DECLARATION {
+
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			if (";".equals(word)) {
+				environment.setState(WAITING_FOR_CLASS);
+			} else {
+				environment.getPublicClass().setPackage(word);
+			}
+		}
+		
+	},
+	IMPORT_DECLARATION {
+
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			if (";".equals(word)) {
+				environment.setState(WAITING_FOR_CLASS);
+			} else {
+				environment.getPublicClass().setPackage(word);
+			}
+		}
+		
+	},
+	CLASS_ANNOTATION,
 	CLASS_START,
 	FIELD,
+	FIELD_ANNOTATION,
 	METHOD,
 	LINE_END_COMMENT,
 	BLOC_COMMENT,

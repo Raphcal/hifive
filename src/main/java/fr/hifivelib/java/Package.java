@@ -23,6 +23,8 @@ package fr.hifivelib.java;
  */
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represent a Java package.
@@ -34,7 +36,15 @@ public class Package implements Node {
 	private Package parent;
 	private String name;
 	
-	private Collection<Node> children;
+	private final Map<String, Node> children = new HashMap<>();
+
+	public Package() {
+	}
+
+	public Package(Package parent, String name) {
+		this.parent = parent;
+		this.name = name;
+	}
 	
 	@Override
 	public Node parent() {
@@ -43,7 +53,7 @@ public class Package implements Node {
 
 	@Override
 	public Collection<Node> children() {
-		return children;
+		return children.values();
 	}
 
 	/**
@@ -52,6 +62,10 @@ public class Package implements Node {
 	@Override
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	/**
@@ -67,6 +81,53 @@ public class Package implements Node {
 			stringBuilder.append(name);
 		}
 		return stringBuilder.toString();
+	}
+
+	public void setParent(Package parent) {
+		this.parent = parent;
+	}
+	
+	public Class getClass(final String classFullName) {
+		final String packageNameOfClass = Class.getPackageNameFromFullName(classFullName);
+		final String fullName = getFullName();
+		
+		if (fullName.equals(packageNameOfClass)) {
+			final Node node = children.get(classFullName);
+			
+			if (node == null) {
+				final String className = Class.getClassNameFromFullName(classFullName);
+				final Class clazz = new Class(this, className);
+				children.put(className, clazz);
+				return clazz;
+			} else if (node instanceof Class) {
+				return (Class) node;
+			} else {
+				throw new IllegalArgumentException("Node '" + packageNameOfClass + "' is not a 'Class' but '" + node.getClass().getName() + "'.");
+			}
+		} else if (packageNameOfClass.startsWith(fullName + '.')) {
+			final int startIndex = fullName.length() + 2;
+			int endIndex = packageNameOfClass.indexOf('.', startIndex);
+			if (endIndex == -1) {
+				endIndex = packageNameOfClass.length();
+			}
+			
+			final String subPackageName = packageNameOfClass.substring(startIndex, endIndex);
+			
+			final Node node = children.get(subPackageName);
+			if (node == null) {
+				final Package subPackage = new Package(this, subPackageName);
+				children.put(subPackageName, subPackage);
+				return subPackage.getClass(classFullName);
+			} else if (node instanceof Package) {
+				return ((Package) node).getClass(classFullName);
+			} else if (node instanceof Class) {
+				return ((Class) node).getSubClassFromFullName(fullName);
+			} else {
+				throw new IllegalArgumentException("Node '" + packageNameOfClass + "' is not a 'Class' but '" + node.getClass().getName() + "'.");
+			}
+		} else {
+			return parent.getClass(classFullName);
+		}
 	}
 	
 }

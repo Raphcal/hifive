@@ -23,6 +23,7 @@ package fr.hifivelib.java;
  */
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Represent a Java class.
@@ -31,18 +32,52 @@ import java.util.Collection;
  */
 public class Class implements Node {
 	
+	public static String getPackageNameFromFullName(String classFullName) {
+		final String packageFullName;
+		
+		final int lastDot = classFullName.lastIndexOf('.');
+		if (lastDot == -1) {
+			packageFullName = "";
+		} else {
+			packageFullName = classFullName.substring(0, lastDot);
+		}
+		
+		return packageFullName;
+	}
+	
+	public static String getClassNameFromFullName(String classFullName) {
+		final String name;
+		
+		final int lastDot = classFullName.lastIndexOf('.');
+		if (lastDot == -1) {
+			name = classFullName;
+		} else {
+			name = classFullName.substring(lastDot + 1);
+		}
+		
+		return name;
+	}
+	
 	private Node parent;
 	private String name;
 	private Kind kind;
 	
 	private Collection<Node> innerClasses;
 	
-	private Collection<Class> imports;
+	private Collection<Class> imports = new HashSet<>();
 	private Collection<Annotation<?>> annotations;
 	private Class superclass;
 	private Collection<Class> interfaces;
 	
 	private Collection<String> authors;
+
+	public Class() {
+	}
+
+	public Class(Node parent, String name) {
+		this.parent = parent;
+		this.name = name;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -51,7 +86,7 @@ public class Class implements Node {
 	public Node parent() {
 		return parent;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -67,6 +102,10 @@ public class Class implements Node {
 	public String getName() {
 		return name;
 	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -80,5 +119,44 @@ public class Class implements Node {
 		}
 		return stringBuilder.append(name).toString();
 	}
+	
+	public void setPackage(final String packageFullName) {
+		if (this.parent != null) {
+			throw new IllegalArgumentException("Multiple package declaration found. Package is defined to '" + parent.getFullName() + "' and is trying to be set to '" + packageFullName + "'.");
+		}
+		
+		final Package packageOfThisClass = new Package();
+		this.parent = packageOfThisClass;
+		
+		packageOfThisClass.children().add(this);
+		
+		if (packageFullName.isEmpty()) {
+			return;
+		}
+		
+		Package topPackage = packageOfThisClass;
+		int lastIndex = packageFullName.length();
+		for (int index = packageFullName.lastIndexOf('.'); index > 0; index = packageFullName.lastIndexOf('.', index)) {
+			topPackage.setName(packageFullName.substring(index, lastIndex));
+			
+			final Package parentPackage = new Package();
+			topPackage.setParent(parentPackage);
+			
+			topPackage = parentPackage;
+			lastIndex = index;
+		}
+	}
+	
+	public void addImport(final String importedClass) {
+		if (parent instanceof Package) {
+			imports.add(((Package) parent).getClass(importedClass));
+		} else {
+			throw new IllegalStateException("Only public outer classes can import classes.");
+		}
+	}
 
+	public Class getSubClassFromFullName(final String fullName) {
+		throw new UnsupportedOperationException("Not implented yet.");
+	}
+	
 }

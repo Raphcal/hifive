@@ -32,9 +32,14 @@ import java.util.Iterator;
 public class StringWordIterator implements Iterator<String> {
 	
 	private final Iterator<Character> source;
+	private Character character;
 	private Character lastCharacter;
 
-	public StringWordIterator(Iterator<Character> source) {
+	public StringWordIterator(final String source) {
+		this(new StringCharacterIterator(source));
+	}
+	
+	public StringWordIterator(final Iterator<Character> source) {
 		this.source = source;
 	}
 	
@@ -43,7 +48,7 @@ public class StringWordIterator implements Iterator<String> {
 	 */
 	@Override
 	public boolean hasNext() {
-		return source.hasNext() || lastCharacter != null;
+		return source.hasNext() || character != null;
 	}
 
 	/**
@@ -51,16 +56,16 @@ public class StringWordIterator implements Iterator<String> {
 	 */
 	@Override
 	public String next() {
-		if (lastCharacter == null) {
+		if (character == null) {
 			nextCharacter();
 		}
 		skipWhitespaces();
 		
-		if (lastCharacter == null) {
+		if (character == null) {
 			return "";
 		}
 		
-		if (lastCharacter == '"' || lastCharacter =='\'') {
+		if (character == '"' || character =='\'') {
 			return readQuotedWords();
 		} else {
 			return readWord();
@@ -70,25 +75,25 @@ public class StringWordIterator implements Iterator<String> {
 	private String readWord() {
 		final StringBuilder wordBuilder = new StringBuilder();
 		
-		if (isEndOfWord(lastCharacter)) {
-			final String result = Character.toString(lastCharacter);
+		if (isEndOfWord(character)) {
+			final String result = Character.toString(character);
 			nextCharacter();
 			return result;
 		}
 		do {
-			wordBuilder.append(lastCharacter);
+			wordBuilder.append(character);
 			nextCharacter();
-		} while (lastCharacter != null && !isEndOfWord(lastCharacter));
+		} while (character != null && !isEndOfWord(character));
 		
 		return wordBuilder.toString();
 	}
 
 	private String readQuotedWords() {
 		final StringBuilder wordBuilder = new StringBuilder();
-		final char quoteMark = lastCharacter;
+		final char quoteMark = character;
 		nextCharacter();
-		while (lastCharacter != quoteMark && lastCharacter != null) {
-			wordBuilder.append(lastCharacter);
+		while (character != quoteMark && character != null) {
+			wordBuilder.append(character);
 			nextCharacter();
 		}
 		nextCharacter();
@@ -96,16 +101,18 @@ public class StringWordIterator implements Iterator<String> {
 	}
 
 	private void skipWhitespaces() {
-		while (lastCharacter != null && Character.isWhitespace(lastCharacter)) {
+		while (character != null && Character.isWhitespace(character)) {
 			nextCharacter();
 		}
 	}
 	
 	private void nextCharacter() {
+		lastCharacter = character;
+		
 		if (source.hasNext()) {
-			lastCharacter = source.next();
+			character = source.next();
 		} else {
-			lastCharacter = null;
+			character = null;
 		}
 	}
 	
