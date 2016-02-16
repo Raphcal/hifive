@@ -1,5 +1,7 @@
 package fr.hifivelib.java;
 
+import java.util.Iterator;
+
 /*
  * #%L
  * Hifive
@@ -33,5 +35,26 @@ public class JavaParserEnvironment {
 	 * Current parser state.
 	 */
 	private JavaParserState state = JavaParserState.WAITING_FOR_PACKAGE_DECLARATION;
+	
+	private Iterator<String> wordIterator;
+	
+	private String lastWord;
+	
+	public boolean hasNext() {
+		return wordIterator.hasNext() || lastWord != null;
+	}
+	
+	public String next() {
+		if (wordIterator.hasNext()) {
+			lastWord = wordIterator.next();
+		} else {
+			lastWord = null;
+		}
+		return lastWord;
+	}
+	
+	public String last() {
+		return lastWord;
+	}
 	
 }
