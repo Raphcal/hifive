@@ -25,7 +25,8 @@ package fr.hifivelib.java;
 import java.util.Iterator;
 
 /**
- *
+ * Iterator for the characters of a <code>String</code>.
+ * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
 public class StringCharacterIterator implements Iterator<Character> {

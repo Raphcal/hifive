@@ -92,6 +92,8 @@ public class StringWordIterator implements Iterator<String> {
 		final StringBuilder wordBuilder = new StringBuilder();
 		final char quoteMark = character;
 		nextCharacter();
+		
+		// TODO: Handle escapes.
 		while (character != quoteMark && character != null) {
 			wordBuilder.append(character);
 			nextCharacter();
