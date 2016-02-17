@@ -37,7 +37,7 @@ public class JavaParserEnvironment {
 	 */
 	private JavaParserState state = JavaParserState.WAITING_FOR_CLASS;
 	
-	private final Iterator<String> wordIterator;
+	private Iterator<String> wordIterator;
 	private String lastWord;
 	
 	private Class publicClass = new Class();
@@ -61,6 +61,24 @@ public class JavaParserEnvironment {
 	
 	public String lastWord() {
 		return lastWord;
+	}
+	
+	public void rewind() {
+		final Iterator<String> originalIterator = wordIterator;
+		
+		this.wordIterator = new Iterator<String>() {
+			
+			@Override
+			public boolean hasNext() {
+				return true;
+			}
+
+			@Override
+			public String next() {
+				wordIterator = originalIterator;
+				return lastWord;
+			}
+		};
 	}
 	
 	public JavaParserState getState() {

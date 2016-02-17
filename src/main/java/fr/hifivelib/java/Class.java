@@ -61,6 +61,7 @@ public class Class implements Node {
 	private Node parent;
 	private String name;
 	private Kind kind;
+	private Visibility visibility;
 	
 	private Collection<Node> innerClasses;
 	
@@ -162,6 +163,14 @@ public class Class implements Node {
 
 	public Class getSubClassFromFullName(final String fullName) {
 		throw new UnsupportedOperationException("Not implented yet.");
+	}
+
+	public void setVisibility(Visibility visibility) {
+		this.visibility = visibility;
+	}
+
+	public void setKind(Kind kind) {
+		this.kind = kind;
 	}
 	
 }

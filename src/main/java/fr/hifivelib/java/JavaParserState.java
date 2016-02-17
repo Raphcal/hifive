@@ -46,6 +46,7 @@ public enum JavaParserState {
 			case "protected":
 			case "private":
 			case "class":
+				environment.rewind();
 				environment.setState(CLASS_START);
 				break;
 			default:
@@ -86,7 +87,56 @@ public enum JavaParserState {
 		
 	},
 	CLASS_ANNOTATION,
-	CLASS_START,
+	CLASS_START {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			switch (word) {
+				case "public":
+					environment.getPublicClass().setVisibility(Visibility.PUBLIC);
+					break;
+				case "private":
+				case "protected":
+					throw new UnsupportedOperationException("Not supported yet");
+				case "interface":
+				case "enum":
+				case "class":
+					environment.getPublicClass().setKind(Kind.valueOf(word.toUpperCase()));
+					environment.setState(CLASS_NAME);
+					break;
+				default:
+					throw new IllegalArgumentException("'" + word + "' is not valid. Should be one of 'public', 'private', 'protected', 'interface', 'enum' or 'class'.");
+			}
+		}
+		
+	},
+	CLASS_NAME {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			switch (word) {
+				case "{":
+					environment.setState(CLASS_INNER);
+					break;
+				case "implements":
+				case "extends":
+					environment.rewind();
+					environment.setState(CLASS_EXTENSION);
+					break;
+				default:
+					environment.getPublicClass().setName(word);
+					environment.setState(CLASS_EXTENSION);
+					break;
+			}
+		}
+		
+	},
+	CLASS_EXTENSION,
+	CLASS_INNER,
 	FIELD,
 	FIELD_ANNOTATION,
 	METHOD,
