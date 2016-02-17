@@ -80,7 +80,7 @@ public enum JavaParserState {
 			if (";".equals(word)) {
 				environment.setState(WAITING_FOR_CLASS);
 			} else {
-				environment.getPublicClass().setPackage(word);
+				environment.getPublicClass().addImport(word);
 			}
 		}
 		
@@ -95,7 +95,7 @@ public enum JavaParserState {
 	JAVADOC;
 	
 	public void execute(JavaParserEnvironment environment) {
-		// No action.
+		environment.nextWord();
 	}
 			
 }

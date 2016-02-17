@@ -23,7 +23,7 @@ package fr.hifivelib.java;
  */
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 /**
  * Represent a Java class.
@@ -64,7 +64,7 @@ public class Class implements Node {
 	
 	private Collection<Node> innerClasses;
 	
-	private Collection<Class> imports = new HashSet<>();
+	private Collection<Class> imports = new LinkedHashSet<>();
 	private Collection<Annotation<?>> annotations;
 	private Class superclass;
 	private Collection<Class> interfaces;
@@ -128,7 +128,7 @@ public class Class implements Node {
 		final Package packageOfThisClass = new Package();
 		this.parent = packageOfThisClass;
 		
-		packageOfThisClass.children().add(this);
+		packageOfThisClass.add(this);
 		
 		if (packageFullName.isEmpty()) {
 			return;
@@ -136,11 +136,12 @@ public class Class implements Node {
 		
 		Package topPackage = packageOfThisClass;
 		int lastIndex = packageFullName.length();
-		for (int index = packageFullName.lastIndexOf('.'); index > 0; index = packageFullName.lastIndexOf('.', index)) {
-			topPackage.setName(packageFullName.substring(index, lastIndex));
+		for (int index = packageFullName.lastIndexOf('.'); lastIndex >= 0; index = packageFullName.lastIndexOf('.', index - 1)) {
+			topPackage.setName(packageFullName.substring(index + 1, lastIndex));
 			
 			final Package parentPackage = new Package();
 			topPackage.setParent(parentPackage);
+			parentPackage.add(topPackage);
 			
 			topPackage = parentPackage;
 			lastIndex = index;
@@ -153,6 +154,10 @@ public class Class implements Node {
 		} else {
 			throw new IllegalStateException("Only public outer classes can import classes.");
 		}
+	}
+
+	public Collection<Class> getImports() {
+		return imports;
 	}
 
 	public Class getSubClassFromFullName(final String fullName) {

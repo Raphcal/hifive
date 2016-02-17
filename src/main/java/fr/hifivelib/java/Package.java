@@ -23,8 +23,8 @@ package fr.hifivelib.java;
  */
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represent a Java package.
@@ -36,7 +36,7 @@ public class Package implements Node {
 	private Package parent;
 	private String name;
 	
-	private final Map<String, Node> children = new HashMap<>();
+	private final Set<Node> children = new HashSet<>();
 
 	public Package() {
 	}
@@ -50,10 +50,14 @@ public class Package implements Node {
 	public Node parent() {
 		return parent;
 	}
+	
+	public void setParent(Package parent) {
+		this.parent = parent;
+	}
 
 	@Override
 	public Collection<Node> children() {
-		return children.values();
+		return children;
 	}
 
 	/**
@@ -75,7 +79,11 @@ public class Package implements Node {
 	public String getFullName() {
 		final StringBuilder stringBuilder = new StringBuilder();
 		if (parent != null) {
-			stringBuilder.append(parent.getFullName()).append('.');
+			final String parentFullName = parent.getFullName();
+			stringBuilder.append(parentFullName);
+			if (!parentFullName.isEmpty()) {
+				stringBuilder.append('.');
+			}
 		}
 		if (name != null) {
 			stringBuilder.append(name);
@@ -83,29 +91,31 @@ public class Package implements Node {
 		return stringBuilder.toString();
 	}
 
-	public void setParent(Package parent) {
-		this.parent = parent;
+	public void add(Node node) {
+		children.add(node);
 	}
 	
 	public Class getClass(final String classFullName) {
 		final String packageNameOfClass = Class.getPackageNameFromFullName(classFullName);
 		final String fullName = getFullName();
 		
+		final String packagePrefix = fullName.isEmpty() ? "" : fullName + '.';
+		
 		if (fullName.equals(packageNameOfClass)) {
-			final Node node = children.get(classFullName);
+			final Node node = get(classFullName);
 			
 			if (node == null) {
 				final String className = Class.getClassNameFromFullName(classFullName);
 				final Class clazz = new Class(this, className);
-				children.put(className, clazz);
+				add(clazz);
 				return clazz;
 			} else if (node instanceof Class) {
 				return (Class) node;
 			} else {
 				throw new IllegalArgumentException("Node '" + packageNameOfClass + "' is not a 'Class' but '" + node.getClass().getName() + "'.");
 			}
-		} else if (packageNameOfClass.startsWith(fullName + '.')) {
-			final int startIndex = fullName.length() + 2;
+		} else if (packageNameOfClass.startsWith(packagePrefix)) {
+			final int startIndex = packagePrefix.length();
 			int endIndex = packageNameOfClass.indexOf('.', startIndex);
 			if (endIndex == -1) {
 				endIndex = packageNameOfClass.length();
@@ -113,10 +123,10 @@ public class Package implements Node {
 			
 			final String subPackageName = packageNameOfClass.substring(startIndex, endIndex);
 			
-			final Node node = children.get(subPackageName);
+			final Node node = get(subPackageName);
 			if (node == null) {
 				final Package subPackage = new Package(this, subPackageName);
-				children.put(subPackageName, subPackage);
+				add(subPackage);
 				return subPackage.getClass(classFullName);
 			} else if (node instanceof Package) {
 				return ((Package) node).getClass(classFullName);
@@ -128,6 +138,18 @@ public class Package implements Node {
 		} else {
 			return parent.getClass(classFullName);
 		}
+	}
+	
+	private Node get(String name) {
+		if (name == null) {
+			return null;
+		}
+		for (final Node child : children) {
+			if (name.equals(child.getName())) {
+				return child;
+			}
+		}
+		return null;
 	}
 	
 }
