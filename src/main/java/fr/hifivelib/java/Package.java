@@ -139,8 +139,8 @@ public class Package implements Node {
 			return parent.getClass(classFullName);
 		}
 	}
-	
-	private Node get(String name) {
+
+	public Node get(String name) {
 		if (name == null) {
 			return null;
 		}

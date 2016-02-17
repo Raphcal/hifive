@@ -66,9 +66,9 @@ public class Class implements Node {
 	private Collection<Node> innerClasses;
 	
 	private Collection<Class> imports = new LinkedHashSet<>();
-	private Collection<Annotation<?>> annotations;
+	private Collection<Annotation<?>> annotations = new LinkedHashSet<>();
 	private Class superclass;
-	private Collection<Class> interfaces;
+	private Collection<Class> interfaces = new LinkedHashSet<>();
 	
 	private Collection<String> authors;
 
@@ -164,13 +164,45 @@ public class Class implements Node {
 	public Class getSubClassFromFullName(final String fullName) {
 		throw new UnsupportedOperationException("Not implented yet.");
 	}
+	
+	public Class getRelativeClass(final String name) {
+		// TODO: Should handle inner classes.
+		final Class samePackageClass = (Class) ((Package) parent).get(name);
+		if (samePackageClass != null) {
+			return samePackageClass;
+		}
+		
+		for (final Class importedClass : imports) {
+			if (name.equals(importedClass.getName())) {
+				return importedClass;
+			}
+		}
+		
+		return ((Package) parent).getClass(name);
+	}
 
 	public void setVisibility(Visibility visibility) {
 		this.visibility = visibility;
 	}
 
+	public Kind getKind() {
+		return kind;
+	}
+	
 	public void setKind(Kind kind) {
 		this.kind = kind;
+	}
+
+	public Class getSuperclass() {
+		return superclass;
+	}
+
+	public void setSuperclass(Class superclass) {
+		this.superclass = superclass;
+	}
+
+	public Collection<Class> getInterfaces() {
+		return interfaces;
 	}
 	
 }

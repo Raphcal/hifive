@@ -122,7 +122,8 @@ public class StringWordIterator implements Iterator<String> {
 		return Character.isWhitespace(c) 
 				|| c == ';'
 				|| c == '('
-				|| c == ')';
+				|| c == ')'
+				|| c == ',';
 	}
 	
 }

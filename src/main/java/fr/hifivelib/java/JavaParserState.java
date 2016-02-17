@@ -135,7 +135,55 @@ public enum JavaParserState {
 		}
 		
 	},
-	CLASS_EXTENSION,
+	CLASS_EXTENSION {
+		
+		private static final int NO_MODE = 0;
+		private static final int EXTENDS_MODE = 1;
+		private static final int IMPLEMENTS_MODE = 2;
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			String word = environment.nextWord();
+			
+			int mode = NO_MODE;
+			
+			while (!"{".equals(word)) {
+				switch (word) {
+					case "implements":
+						mode = IMPLEMENTS_MODE;
+						break;
+					case "extends":
+						mode = EXTENDS_MODE;
+						break;
+					case ",":
+						break;
+					default:
+						final Class clazz = environment.getPublicClass().getRelativeClass(word);
+						
+						if (mode == EXTENDS_MODE) {
+							environment.getPublicClass().setSuperclass(clazz);
+						} else if (mode == IMPLEMENTS_MODE) {
+							if (clazz.getKind() == null) {
+								clazz.setKind(Kind.INTERFACE);
+							} else if (clazz.getKind() != Kind.INTERFACE) {
+								throw new IllegalArgumentException("A class cannot implements a " + clazz.getKind());
+							}
+							environment.getPublicClass().getInterfaces().add(clazz);
+						}
+						break;
+				}
+				word = environment.nextWord();
+			}
+			
+			if (environment.getPublicClass().getSuperclass() == null) {
+				final Class object = ((Package) environment.getPublicClass().parent()).getClass("java.lang.Object");
+				environment.getPublicClass().setSuperclass(object);
+			}
+			
+			environment.setState(CLASS_INNER);
+		}
+		
+	},
 	CLASS_INNER,
 	FIELD,
 	FIELD_ANNOTATION,
