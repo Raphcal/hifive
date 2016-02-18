@@ -1,6 +1,5 @@
 package fr.hifivelib.java;
 
-import java.util.ArrayDeque;
 import java.util.Iterator;
 
 /*
@@ -35,7 +34,7 @@ public class JavaParserEnvironment {
 	/**
 	 * Current parser state.
 	 */
-	private JavaParserState state = JavaParserState.WAITING_FOR_CLASS;
+	private JavaParserState state = JavaParserState.WAITING_FOR_PACKAGE;
 	
 	private Iterator<String> wordIterator;
 	private String lastWord;

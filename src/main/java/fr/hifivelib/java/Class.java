@@ -24,6 +24,7 @@ package fr.hifivelib.java;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Represent a Java class.
@@ -65,19 +66,22 @@ public class Class implements Node {
 	
 	private Collection<Node> innerClasses;
 	
-	private Collection<Class> imports = new LinkedHashSet<>();
-	private Collection<Annotation<?>> annotations = new LinkedHashSet<>();
+	private final Set<Class> imports = new LinkedHashSet<>();
+	private final Set<Annotation> annotations = new LinkedHashSet<>();
 	private Class superclass;
-	private Collection<Class> interfaces = new LinkedHashSet<>();
+	private final Set<Class> interfaces = new LinkedHashSet<>();
 	
-	private Collection<String> authors;
-
 	public Class() {
 	}
 
 	public Class(Node parent, String name) {
+		this(parent, name, null);
+	}
+	
+	public Class(Node parent, String name, Kind kind) {
 		this.parent = parent;
 		this.name = name;
+		this.kind = kind;
 	}
 	
 	/**
@@ -126,27 +130,11 @@ public class Class implements Node {
 			throw new IllegalArgumentException("Multiple package declaration found. Package is defined to '" + parent.getFullName() + "' and is trying to be set to '" + packageFullName + "'.");
 		}
 		
-		final Package packageOfThisClass = new Package();
-		this.parent = packageOfThisClass;
-		
+		final Package packageOfThisClass = Package.createPackageWithFullName(packageFullName);
+		this.parent = Package.createPackageWithFullName(packageFullName);
 		packageOfThisClass.add(this);
 		
-		if (packageFullName.isEmpty()) {
-			return;
-		}
-		
-		Package topPackage = packageOfThisClass;
-		int lastIndex = packageFullName.length();
-		for (int index = packageFullName.lastIndexOf('.'); lastIndex >= 0; index = packageFullName.lastIndexOf('.', index - 1)) {
-			topPackage.setName(packageFullName.substring(index + 1, lastIndex));
-			
-			final Package parentPackage = new Package();
-			topPackage.setParent(parentPackage);
-			parentPackage.add(topPackage);
-			
-			topPackage = parentPackage;
-			lastIndex = index;
-		}
+		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());
 	}
 	
 	public void addImport(final String importedClass) {
@@ -167,20 +155,29 @@ public class Class implements Node {
 	
 	public Class getRelativeClass(final String name) {
 		// TODO: Should handle inner classes.
-		final Class samePackageClass = (Class) ((Package) parent).get(name);
-		if (samePackageClass != null) {
-			return samePackageClass;
-		}
+		final Package parentPackage = (Package) parent;
 		
-		for (final Class importedClass : imports) {
-			if (name.equals(importedClass.getName())) {
-				return importedClass;
+		if (name.indexOf('.') == -1) {
+			final Class samePackageClass = (Class) parentPackage.get(name);
+			if (samePackageClass != null) {
+				return samePackageClass;
+			}
+
+			for (final Class importedClass : imports) {
+				if (name.equals(importedClass.getName())) {
+					return importedClass;
+				}
+			}
+
+			final Class javaLangClass = parentPackage.getClass("java.lang." + name, false);
+			if (javaLangClass != null) {
+				return javaLangClass;
 			}
 		}
 		
-		return ((Package) parent).getClass(name);
+		return parentPackage.getClass(name);
 	}
-
+	
 	public void setVisibility(Visibility visibility) {
 		this.visibility = visibility;
 	}
@@ -203,6 +200,30 @@ public class Class implements Node {
 
 	public Collection<Class> getInterfaces() {
 		return interfaces;
+	}
+
+	@Override
+	public void merge(Node other) {
+		if (other instanceof Class) {
+			final Class otherClass = (Class) other;
+			
+			if (kind == null) {
+				kind = otherClass.kind;
+			}
+			if (visibility == null) {
+				visibility = otherClass.visibility;
+			}
+			Nodes.mergeNodes(innerClasses, otherClass.innerClasses);
+			Nodes.mergeNodes(imports, otherClass.imports);
+			Nodes.mergeNodes(annotations, otherClass.annotations);
+			if (superclass == null) {
+				// TODO: Maybe create a special case for java.lang.Object ?
+				superclass = otherClass.superclass;
+			}
+			Nodes.mergeNodes(interfaces, otherClass.interfaces);
+		} else {
+			throw new IllegalArgumentException("Node must be a class.");
+		}
 	}
 	
 }

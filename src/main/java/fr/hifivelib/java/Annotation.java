@@ -1,5 +1,7 @@
 package fr.hifivelib.java;
 
+import java.util.Collection;
+
 /*
  * #%L
  * Hifive
@@ -25,13 +27,35 @@ package fr.hifivelib.java;
 /**
  * Represent an annotation.
  * 
- * @param <T> Type of the value.
- * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
-public class Annotation<T> {
+public class Annotation implements Node {
 	
 	private String name;
-	private T value;
+
+	@Override
+	public String getName() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public String getFullName() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public Node parent() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public Collection<Node> children() {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
+
+	@Override
+	public void merge(Node other) {
+		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+	}
 	
 }

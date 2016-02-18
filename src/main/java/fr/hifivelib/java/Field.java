@@ -32,6 +32,6 @@ import java.util.Collection;
 public class Field {
 	
 	private String name;
-	private Collection<Annotation<?>> annotations;
+	private Collection<Annotation> annotations;
 	
 }

@@ -36,4 +36,6 @@ public interface Node {
 	Node parent();
 	Collection<Node> children();
 	
+	void merge(Node other);
+	
 }

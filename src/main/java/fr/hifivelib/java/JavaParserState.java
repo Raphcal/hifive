@@ -29,7 +29,7 @@ package fr.hifivelib.java;
  */
 public enum JavaParserState {
 	
-	WAITING_FOR_CLASS {
+	WAITING_FOR_PACKAGE {
 
 		@Override
 		public void execute(JavaParserEnvironment environment) {
@@ -40,18 +40,21 @@ public enum JavaParserState {
 				environment.setState(PACKAGE_DECLARATION);
 				break;
 			case "import":
+				environment.getPublicClass().setPackage("");
 				environment.setState(IMPORT_DECLARATION);
 				break;
 			case "public":
 			case "protected":
 			case "private":
 			case "class":
+				environment.getPublicClass().setPackage("");
 				environment.rewind();
 				environment.setState(CLASS_START);
 				break;
 			default:
 				if (!word.isEmpty() && word.charAt(0) == '@') {
-					environment.setState(CLASS_START);
+					environment.getPublicClass().setPackage("");
+					environment.setState(CLASS_ANNOTATION);
 				}
 				break;
 			}
@@ -72,6 +75,34 @@ public enum JavaParserState {
 		}
 		
 	},
+	WAITING_FOR_CLASS {
+
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			switch (word) {
+			case "package":
+				throw new IllegalArgumentException("Package is not allowed here.");
+			case "import":
+				environment.setState(IMPORT_DECLARATION);
+				break;
+			case "public":
+			case "protected":
+			case "private":
+			case "class":
+				environment.rewind();
+				environment.setState(CLASS_START);
+				break;
+			default:
+				if (!word.isEmpty() && word.charAt(0) == '@') {
+					environment.setState(CLASS_ANNOTATION);
+				}
+				break;
+			}
+		}
+		
+	},
 	IMPORT_DECLARATION {
 
 		@Override
@@ -86,7 +117,19 @@ public enum JavaParserState {
 		}
 		
 	},
-	CLASS_ANNOTATION,
+	CLASS_ANNOTATION {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String word = environment.nextWord();
+			
+			// TODO: Handle annotation arguments.
+			if (!word.isEmpty() && word.charAt(0) == '@') {
+				environment.getPublicClass().getRelativeClass(word);
+			}
+		}
+		
+	},
 	CLASS_START {
 		
 		@Override
