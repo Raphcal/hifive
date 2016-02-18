@@ -27,7 +27,7 @@ public class JavaParserTest {
 				"import org.junit.Test;\n" +
 				"import org.junit.Assert;\n" +
 				"\n" +
-				"public class JavaParserTest extends File implements fr.hifivelib.other.SomeInterface, Test {\n" +
+				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, Test {\n" +
 				"}");
 		assertEquals("JavaParserTest", result.getName());
 		assertEquals("fr.hifivelib.java", result.parent().getFullName());
@@ -39,7 +39,7 @@ public class JavaParserTest {
 			assertEquals(strings.next(), importedClass.getFullName());
 		}
 		
-		assertEquals("java.io.File", result.getSuperclass().getFullName());
+		assertEquals("java.lang.Boolean", result.getSuperclass().getFullName());
 		assertNotSame(Kind.ENUM, result.getSuperclass().getKind());
 		assertNotSame(Kind.INTERFACE, result.getSuperclass().getKind());
 		assertEquals(2, result.getInterfaces().size());

@@ -38,7 +38,7 @@ public final class Nodes {
 	}
 	
 	private Nodes() {
-		
+		// No initialization.
 	}
 	
 }

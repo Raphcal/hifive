@@ -131,7 +131,7 @@ public class Class implements Node {
 		}
 		
 		final Package packageOfThisClass = Package.createPackageWithFullName(packageFullName);
-		this.parent = Package.createPackageWithFullName(packageFullName);
+		this.parent = packageOfThisClass;
 		packageOfThisClass.add(this);
 		
 		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());

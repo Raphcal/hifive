@@ -214,7 +214,7 @@ public class Package implements Node {
 		final String packagePrefix = fullName.isEmpty() ? "" : fullName + '.';
 		
 		if (fullName.equals(packageNameOfClass)) {
-			final Node node = get(classFullName);
+			final Node node = get(Class.getClassNameFromFullName(classFullName));
 			
 			if (node == null) {
 				if (createClassIfNull) {
