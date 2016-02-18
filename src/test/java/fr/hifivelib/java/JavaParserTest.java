@@ -40,11 +40,14 @@ public class JavaParserTest {
 		}
 		
 		assertEquals("java.io.File", result.getSuperclass().getFullName());
+		assertNotSame(Kind.ENUM, result.getSuperclass().getKind());
+		assertNotSame(Kind.INTERFACE, result.getSuperclass().getKind());
 		assertEquals(2, result.getInterfaces().size());
 		
 		strings = Arrays.asList("fr.hifivelib.other.SomeInterface", "org.junit.Test").iterator();
 		for (final Class importedClass : result.getInterfaces()) {
 			assertEquals(strings.next(), importedClass.getFullName());
+			assertEquals(Kind.INTERFACE, importedClass.getKind());
 		}
 	}
 	
