@@ -29,8 +29,56 @@ import java.util.Collection;
  * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
-public class Instance<T extends Node> {
+public class Instance<T extends Node> implements Node {
 	
-    private T of;
-    
+    private final T of;
+
+	public Instance(T of) {
+		this.of = of;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		return of.getName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getFullName() {
+		return of.getFullName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Node parent() {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Collection<Node> children() {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void merge(Node other) {
+		throw new UnsupportedOperationException("Not implemented yet.");
+	}
+
+	public T getOf() {
+		return of;
+	}
+	
 }

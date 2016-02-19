@@ -67,7 +67,7 @@ public class Class implements Node {
 	private Collection<Node> innerClasses;
 	
 	private final Set<Class> imports = new LinkedHashSet<>();
-	private final Set<Annotation> annotations = new LinkedHashSet<>();
+	private final Set<Instance<Annotation>> annotations = new LinkedHashSet<>();
 	private Class superclass;
 	private final Set<Class> interfaces = new LinkedHashSet<>();
 	
@@ -120,6 +120,41 @@ public class Class implements Node {
 		return Nodes.fullName(parent, name);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void merge(Node other) {
+		if (other instanceof Class) {
+			final Class otherClass = (Class) other;
+			
+			if (kind == null) {
+				kind = otherClass.kind;
+			}
+			if (visibility == null) {
+				visibility = otherClass.visibility;
+			}
+			Nodes.mergeNodes(innerClasses, otherClass.innerClasses);
+			Nodes.mergeNodes(imports, otherClass.imports);
+			Nodes.mergeNodes(annotations, otherClass.annotations);
+			if (superclass == null) {
+				// TODO: Maybe create a special case for java.lang.Object ?
+				superclass = otherClass.superclass;
+			}
+			Nodes.mergeNodes(interfaces, otherClass.interfaces);
+		} else {
+			throw new IllegalArgumentException("Node must be a class.");
+		}
+	}
+	
+	/**
+	 * Sets the package by its full name.
+	 * <p>
+	 * The package can be set only once. Every further call to this method
+	 * will throw an <code>IllegalArgumentException</code>.
+	 * 
+	 * @param packageFullName Full name of the package.
+	 */
 	public void setPackage(final String packageFullName) {
 		if (this.parent != null) {
 			throw new IllegalArgumentException("Multiple package declaration found. Package is defined to '" + parent.getFullName() + "' and is trying to be set to '" + packageFullName + "'.");
@@ -132,6 +167,11 @@ public class Class implements Node {
 		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());
 	}
 	
+	/**
+	 * Adds a new import by its full name.
+	 * 
+	 * @param importedClass Full name of the class to import.
+	 */
 	public void addImport(final String importedClass) {
 		if (parent instanceof Package) {
 			imports.add(((Package) parent).getClass(importedClass));
@@ -140,6 +180,11 @@ public class Class implements Node {
 		}
 	}
 
+	/**
+	 * Returns the class imported by this one.
+	 * 
+	 * @return the class imported by this one.
+	 */
 	public Collection<Class> getImports() {
 		return imports;
 	}
@@ -197,28 +242,8 @@ public class Class implements Node {
 		return interfaces;
 	}
 
-	@Override
-	public void merge(Node other) {
-		if (other instanceof Class) {
-			final Class otherClass = (Class) other;
-			
-			if (kind == null) {
-				kind = otherClass.kind;
-			}
-			if (visibility == null) {
-				visibility = otherClass.visibility;
-			}
-			Nodes.mergeNodes(innerClasses, otherClass.innerClasses);
-			Nodes.mergeNodes(imports, otherClass.imports);
-			Nodes.mergeNodes(annotations, otherClass.annotations);
-			if (superclass == null) {
-				// TODO: Maybe create a special case for java.lang.Object ?
-				superclass = otherClass.superclass;
-			}
-			Nodes.mergeNodes(interfaces, otherClass.interfaces);
-		} else {
-			throw new IllegalArgumentException("Node must be a class.");
-		}
+	public Set<Instance<Annotation>> getAnnotations() {
+		return annotations;
 	}
-	
+
 }

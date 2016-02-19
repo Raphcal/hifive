@@ -33,6 +33,13 @@ import java.util.Map;
  */
 public class Annotation implements Node {
 	
+	public static Annotation from(Class clazz) {
+		final Annotation annotation = new Annotation();
+		annotation.name = clazz.getName();
+		annotation.parent = clazz.parent();
+		return annotation;
+	}
+	
 	/**
 	 * Parent of the annotation (may be a class or a package).
 	 */
@@ -47,7 +54,7 @@ public class Annotation implements Node {
 	 * Map of the annotation fields associated to its default value (if any).
 	 */
 	private Map<Field, String> fields;
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

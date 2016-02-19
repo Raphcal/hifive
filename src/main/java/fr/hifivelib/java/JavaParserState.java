@@ -96,6 +96,7 @@ public enum JavaParserState {
 				break;
 			default:
 				if (!word.isEmpty() && word.charAt(0) == '@') {
+					environment.rewind();
 					environment.setState(CLASS_ANNOTATION);
 				}
 				break;
@@ -125,8 +126,12 @@ public enum JavaParserState {
 			
 			// TODO: Handle annotation arguments.
 			if (!word.isEmpty() && word.charAt(0) == '@') {
-				environment.getPublicClass().getRelativeClass(word);
+				final Class annotationClass = environment.getPublicClass().getRelativeClass(word.substring(1));
+				final Annotation annotation = Annotation.from(annotationClass);
+				environment.getPublicClass().getAnnotations().add(new Instance<>(annotation));
 			}
+			
+			environment.setState(WAITING_FOR_CLASS);
 		}
 		
 	},

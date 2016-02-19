@@ -48,25 +48,30 @@ public class JavaParserTest {
 				"import java.io.File;\n" +
 				"import org.junit.Test;\n" +
 				"import org.junit.Assert;\n" +
+				"import fr.hifivelib.annotation.MyInterface;\n" +
 				"\n" +
-				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, Test {\n" +
+				"@Test\n" +
+				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, MyInterface {\n" +
 				"}");
 		assertEquals("JavaParserTest", result.getName());
 		assertEquals("fr.hifivelib.java", result.parent().getFullName());
 		assertEquals("fr.hifivelib.java.JavaParserTest", result.getFullName());
-		assertEquals(3, result.getImports().size());
+		assertEquals(4, result.getImports().size());
 		
-		Iterator<String> strings = Arrays.asList("java.io.File", "org.junit.Test", "org.junit.Assert").iterator();
+		Iterator<String> strings = Arrays.asList("java.io.File", "org.junit.Test", "org.junit.Assert", "fr.hifivelib.annotation.MyInterface").iterator();
 		for (final Class importedClass : result.getImports()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 		}
+		
+		assertEquals(1, result.getAnnotations().size());
+		assertEquals("org.junit.Test", result.getAnnotations().iterator().next().getFullName());
 		
 		assertEquals("java.lang.Boolean", result.getSuperclass().getFullName());
 		assertNotSame(Kind.ENUM, result.getSuperclass().getKind());
 		assertNotSame(Kind.INTERFACE, result.getSuperclass().getKind());
 		assertEquals(2, result.getInterfaces().size());
 		
-		strings = Arrays.asList("fr.hifivelib.other.SomeInterface", "org.junit.Test").iterator();
+		strings = Arrays.asList("fr.hifivelib.other.SomeInterface", "fr.hifivelib.annotation.MyInterface").iterator();
 		for (final Class importedClass : result.getInterfaces()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 			assertEquals(Kind.INTERFACE, importedClass.getKind());
