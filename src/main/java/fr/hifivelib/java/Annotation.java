@@ -1,6 +1,8 @@
 package fr.hifivelib.java;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /*
  * #%L
@@ -31,28 +33,56 @@ import java.util.Collection;
  */
 public class Annotation implements Node {
 	
+	/**
+	 * Parent of the annotation (may be a class or a package).
+	 */
+	private Node parent;
+	
+	/**
+	 * Name of the annotation.
+	 */
 	private String name;
+	
+	/**
+	 * Map of the annotation fields associated to its default value (if any).
+	 */
+	private Map<Field, String> fields;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getName() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getFullName() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return Nodes.fullName(parent, name);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Node parent() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return parent;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Collection<Node> children() {
-		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		return Collections.emptyList();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void merge(Node other) {
 		throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

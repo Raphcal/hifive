@@ -117,12 +117,7 @@ public class Class implements Node {
 	 */
 	@Override
 	public String getFullName() {
-		final StringBuilder stringBuilder = new StringBuilder();
-		final String parentFullName = parent.getFullName();
-		if (!parentFullName.isEmpty()) {
-			stringBuilder.append(parentFullName).append('.');
-		}
-		return stringBuilder.append(name).toString();
+		return Nodes.fullName(parent, name);
 	}
 	
 	public void setPackage(final String packageFullName) {

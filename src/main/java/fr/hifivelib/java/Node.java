@@ -25,17 +25,49 @@ package fr.hifivelib.java;
 import java.util.Collection;
 
 /**
- *
+ * Parent interface for every java element.
+ * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
 public interface Node {
 	
+	/**
+	 * Returns the name of the node.
+	 * 
+	 * @return the name of the node.
+	 */
 	String getName();
+	
+	/**
+	 * Returns the full name of the node.
+	 * <p>
+	 * The full name if built from the name of this node preceded by the
+	 * name of its parents. Names are separated with a dot.
+	 * 
+	 * @return the full name of the node.
+	 * @see Nodes#SEPARATOR
+	 */
 	String getFullName();
 	
+	/**
+	 * Returns the parent node of this node.
+	 * 
+	 * @return the parent node of this node.
+	 */
 	Node parent();
+	
+	/**
+	 * Returns the children of this node.
+	 * 
+	 * @return the children of this node or an empty collection of none exists.
+	 */
 	Collection<Node> children();
 	
+	/**
+	 * Merge the content of this node with the content of the given node.
+	 * 
+	 * @param other Node to merge with.
+	 */
 	void merge(Node other);
 	
 }

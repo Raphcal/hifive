@@ -185,18 +185,7 @@ public class Package implements Node {
 	 */
 	@Override
 	public String getFullName() {
-		final StringBuilder stringBuilder = new StringBuilder();
-		if (parent != null) {
-			final String parentFullName = parent.getFullName();
-			stringBuilder.append(parentFullName);
-			if (!parentFullName.isEmpty()) {
-				stringBuilder.append('.');
-			}
-		}
-		if (name != null) {
-			stringBuilder.append(name);
-		}
-		return stringBuilder.toString();
+		return Nodes.fullName(parent, name);
 	}
 
 	public void add(Node node) {
