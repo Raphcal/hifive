@@ -40,20 +40,20 @@ public enum JavaParserState {
 				environment.setState(PACKAGE_DECLARATION);
 				break;
 			case "import":
-				environment.getPublicClass().setPackage("");
+				environment.getSourceFile().setPackage("");
 				environment.setState(IMPORT_DECLARATION);
 				break;
 			case "public":
 			case "protected":
 			case "private":
 			case "class":
-				environment.getPublicClass().setPackage("");
+				environment.getSourceFile().setPackage("");
 				environment.rewind();
 				environment.setState(CLASS_START);
 				break;
 			default:
 				if (!word.isEmpty() && word.charAt(0) == '@') {
-					environment.getPublicClass().setPackage("");
+					environment.getSourceFile().setPackage("");
 					environment.setState(CLASS_ANNOTATION);
 				}
 				break;
@@ -70,7 +70,7 @@ public enum JavaParserState {
 			if (";".equals(word)) {
 				environment.setState(WAITING_FOR_CLASS);
 			} else {
-				environment.getPublicClass().setPackage(word);
+				environment.getSourceFile().setPackage(word);
 			}
 		}
 		
@@ -113,7 +113,7 @@ public enum JavaParserState {
 			if (";".equals(word)) {
 				environment.setState(WAITING_FOR_CLASS);
 			} else {
-				environment.getPublicClass().addImport(word);
+				environment.getSourceFile().addImport(word);
 			}
 		}
 		

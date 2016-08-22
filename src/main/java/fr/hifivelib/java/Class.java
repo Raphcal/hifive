@@ -33,7 +33,7 @@ import java.util.Set;
  */
 public class Class implements Node {
 	
-	public static String getPackageNameFromFullName(String classFullName) {
+	public static String getPackageNameFromFullName(final String classFullName) {
 		final String packageFullName;
 		
 		final int lastDot = classFullName.lastIndexOf('.');
@@ -46,7 +46,7 @@ public class Class implements Node {
 		return packageFullName;
 	}
 	
-	public static String getClassNameFromFullName(String classFullName) {
+	public static String getClassNameFromFullName(final String classFullName) {
 		final String name;
 		
 		final int lastDot = classFullName.lastIndexOf('.');
@@ -165,19 +165,6 @@ public class Class implements Node {
 		packageOfThisClass.add(this);
 		
 		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());
-	}
-	
-	/**
-	 * Adds a new import by its full name.
-	 * 
-	 * @param importedClass Full name of the class to import.
-	 */
-	public void addImport(final String importedClass) {
-		if (parent instanceof Package) {
-			imports.add(((Package) parent).getClass(importedClass));
-		} else {
-			throw new IllegalStateException("Only public outer classes can import classes.");
-		}
 	}
 
 	/**

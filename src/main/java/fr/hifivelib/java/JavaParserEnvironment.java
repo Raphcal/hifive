@@ -39,6 +39,7 @@ public class JavaParserEnvironment {
 	private Iterator<String> wordIterator;
 	private String lastWord;
 	
+	private SourceFile sourceFile = new SourceFile();
 	private Class publicClass = new Class();
 
 	public JavaParserEnvironment(final Iterator<String> wordIterator) {
@@ -88,8 +89,12 @@ public class JavaParserEnvironment {
 		this.state = state;
 	}
 
-	public Class getPublicClass() {
-		return publicClass;
+	public SourceFile getSourceFile() {
+		return sourceFile;
 	}
 	
+	public Class getPublicClass() {
+		return sourceFile.getPublicClass();
+	}
+
 }

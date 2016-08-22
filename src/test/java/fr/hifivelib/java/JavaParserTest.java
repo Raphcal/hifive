@@ -41,8 +41,8 @@ public class JavaParserTest {
 	public void testParseSourceFromString() {
 		System.out.println("parseSourceFromString");
 		
-		JavaParser instance = new JavaParser();
-		Class result = instance.parseSourceFromString(
+		final JavaParser instance = new JavaParser();
+		final SourceFile sourceFile = instance.parseSourceFromString(
 				"package fr.hifivelib.java;\n" +
 				"\n" +
 				"import java.io.File;\n" +
@@ -53,6 +53,7 @@ public class JavaParserTest {
 				"@Test\n" +
 				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, MyInterface {\n" +
 				"}");
+		final Class result = sourceFile.getPublicClass();
 		assertEquals("JavaParserTest", result.getName());
 		assertEquals("fr.hifivelib.java", result.parent().getFullName());
 		assertEquals("fr.hifivelib.java.JavaParserTest", result.getFullName());

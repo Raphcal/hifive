@@ -32,22 +32,22 @@ import java.util.Iterator;
  */
 public class JavaParser {
 	
-	public Class parseSourceFromFile(final File sourceFile) {
+	public SourceFile parseSourceFromFile(final File sourceFile) {
 		return parse(null);
 	}
 	
-	public Class parseSourceFromString(final String source) {
+	public SourceFile parseSourceFromString(final String source) {
 		return parse(new StringWordIterator(source));
 	}
 	
-	private Class parse(final Iterator<String> wordIterator) {
+	private SourceFile parse(final Iterator<String> wordIterator) {
 		final JavaParserEnvironment environment = new JavaParserEnvironment(wordIterator);
 		
 		while (environment.hasNext()) {
 			environment.getState().execute(environment);
 		}
 		
-		return environment.getPublicClass();
+		return environment.getSourceFile();
 	}
 	
 }
