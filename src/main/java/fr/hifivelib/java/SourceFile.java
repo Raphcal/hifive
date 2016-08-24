@@ -26,7 +26,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- *
+ * Represent a source file containing Java code.
+ * 
  * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
 public class SourceFile {
@@ -53,7 +54,7 @@ public class SourceFile {
 		final Package aPackage = Package.createPackageWithFullName(packageFullName);
 		this.parentPackage = aPackage;
 		
-		aPackage.mergeFromRoot(Package.getJavaLangPackage());
+		aPackage.mergeFromRoot(Packages.getJavaLangPackage());
 	}
 	
 	/**
@@ -63,6 +64,32 @@ public class SourceFile {
 	 */
 	public void addImport(final String importedClass) {
 		imports.add(parentPackage.getClass(importedClass));
+	}
+	
+	public Class getRelativeClass(final String name) {
+		if (name.indexOf('.') == -1) {
+			if (publicClass != null) {
+				// TODO: Search inner classes.
+			}
+			
+			final Class samePackageClass = (Class) parentPackage.get(name);
+			if (samePackageClass != null) {
+				return samePackageClass;
+			}
+
+			for (final Class importedClass : imports) {
+				if (name.equals(importedClass.getName())) {
+					return importedClass;
+				}
+			}
+
+			final Class javaLangClass = parentPackage.getClass("java.lang." + name, false);
+			if (javaLangClass != null) {
+				return javaLangClass;
+			}
+		}
+		
+		return parentPackage.getClass(name);
 	}
 	
 	public Class getPublicClass() {
@@ -77,6 +104,15 @@ public class SourceFile {
 		return otherClasses;
 	}
 
+	public Package getPackage() {
+		return parentPackage;
+	}
+
+	/**
+	 * Returns the class imported by this one.
+	 * 
+	 * @return the class imported by this one.
+	 */
 	public Set<Class> getImports() {
 		return imports;
 	}

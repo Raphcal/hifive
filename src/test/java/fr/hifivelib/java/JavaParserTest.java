@@ -57,10 +57,10 @@ public class JavaParserTest {
 		assertEquals("JavaParserTest", result.getName());
 		assertEquals("fr.hifivelib.java", result.parent().getFullName());
 		assertEquals("fr.hifivelib.java.JavaParserTest", result.getFullName());
-		assertEquals(4, result.getImports().size());
+		assertEquals(4, sourceFile.getImports().size());
 		
 		Iterator<String> strings = Arrays.asList("java.io.File", "org.junit.Test", "org.junit.Assert", "fr.hifivelib.annotation.MyInterface").iterator();
-		for (final Class importedClass : result.getImports()) {
+		for (final Class importedClass : sourceFile.getImports()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 		}
 		

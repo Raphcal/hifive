@@ -33,6 +33,6 @@ public enum Kind {
 	ABSTRACT_CLASS,
 	INTERFACE,
 	ENUM,
-	ANNOTATION
+	ANNOTATION;
 	
 }
