@@ -38,6 +38,41 @@ public class JavaParserTest {
 	 * Test of parseSourceFromString method, of class JavaParser.
 	 */
 	@Test
+	public void testParseSourceFromStringPackage() {
+		System.out.println("parseFromStringPackage");
+		
+		final JavaParser instance = new JavaParser();
+		final SourceFile sourceFile = instance.parseSourceFromString("package fr.hifivelib.java;");
+		
+		assertEquals("fr.hifivelib.java", sourceFile.getPackage().getFullName());
+		assertNull(sourceFile.getPublicClass());
+	}
+	
+	/**
+	 * Test of parseSourceFromString method, of class JavaParser.
+	 */
+	@Test
+	public void testParseSourceFromStringImports() {
+		System.out.println("parseFromStringImports");
+		
+		final JavaParser instance = new JavaParser();
+		final SourceFile sourceFile = instance.parseSourceFromString("import org.junit.Test;import org.junit.Assert;");
+		
+		assertEquals("", sourceFile.getPackage().getFullName());
+		
+		assertEquals(2, sourceFile.getImports().size());
+		final Iterator<String> strings = Arrays.asList("org.junit.Test", "org.junit.Assert").iterator();
+		for (final Class importedClass : sourceFile.getImports()) {
+			assertEquals(strings.next(), importedClass.getFullName());
+		}
+		
+		assertNull(sourceFile.getPublicClass());
+	}
+	
+	/**
+	 * Test of parseSourceFromString method, of class JavaParser.
+	 */
+	@Test
 	public void testParseSourceFromString() {
 		System.out.println("parseSourceFromString");
 		
@@ -57,10 +92,10 @@ public class JavaParserTest {
 		assertEquals("JavaParserTest", result.getName());
 		assertEquals("fr.hifivelib.java", result.parent().getFullName());
 		assertEquals("fr.hifivelib.java.JavaParserTest", result.getFullName());
-		assertEquals(4, result.getImports().size());
+		assertEquals(4, sourceFile.getImports().size());
 		
 		Iterator<String> strings = Arrays.asList("java.io.File", "org.junit.Test", "org.junit.Assert", "fr.hifivelib.annotation.MyInterface").iterator();
-		for (final Class importedClass : result.getImports()) {
+		for (final Class importedClass : sourceFile.getImports()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 		}
 		
