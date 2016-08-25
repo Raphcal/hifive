@@ -1,5 +1,8 @@
 package fr.hifivelib.java;
 
+import java.util.Deque;
+import java.util.Set;
+
 /*
  * #%L
  * Hifive
@@ -46,9 +49,14 @@ public enum JavaParserState {
 			case "public":
 			case "protected":
 			case "private":
+			case "abstract":
+			case "interface":
+			case "@interface":
+			case "enum":
 			case "class":
 				environment.getSourceFile().setPackage("");
 				environment.rewind();
+				environment.getClassStack().push(new Class(environment.getSourceFile()));
 				environment.setState(CLASS_START);
 				break;
 			default:
@@ -90,8 +98,13 @@ public enum JavaParserState {
 			case "public":
 			case "protected":
 			case "private":
+			case "abstract":
+			case "interface":
+			case "@interface":
+			case "enum":
 			case "class":
 				environment.rewind();
+				environment.getClassStack().push(new Class(environment.getSourceFile()));
 				environment.setState(CLASS_START);
 				break;
 			default:
@@ -126,9 +139,9 @@ public enum JavaParserState {
 			
 			// TODO: Handle annotation arguments.
 			if (!word.isEmpty() && word.charAt(0) == '@') {
-				final Class annotationClass = environment.getPublicClass().getRelativeClass(word.substring(1));
+				final Class annotationClass = environment.getSourceFile().getRelativeClass(word.substring(1));
 				final Annotation annotation = Annotation.from(annotationClass);
-				environment.getPublicClass().getAnnotations().add(new Instance<>(annotation));
+				environment.getAnnotations().add(new Instance<>(annotation));
 			}
 			
 			environment.setState(WAITING_FOR_CLASS);
@@ -143,20 +156,35 @@ public enum JavaParserState {
 			
 			switch (word) {
 				case "public":
-					environment.getPublicClass().setVisibility(Visibility.PUBLIC);
+					environment.getCurrentClass().setVisibility(Visibility.PUBLIC);
 					break;
 				case "private":
+					environment.getCurrentClass().setVisibility(Visibility.PRIVATE);
+					break;
 				case "protected":
-					throw new UnsupportedOperationException("Not supported yet");
+					environment.getCurrentClass().setVisibility(Visibility.PROTECTED);
+					break;
+				case "@interface":
+					environment.getCurrentClass().setKind(Kind.ANNOTATION);
+					setAnnotations(environment);
+					environment.setState(CLASS_NAME);
+					break;
 				case "interface":
 				case "enum":
 				case "class":
-					environment.getPublicClass().setKind(Kind.valueOf(word.toUpperCase()));
+					environment.getCurrentClass().setKind(Kind.valueOf(word.toUpperCase()));
+					setAnnotations(environment);
 					environment.setState(CLASS_NAME);
 					break;
 				default:
 					throw new IllegalArgumentException("'" + word + "' is not valid. Should be one of 'public', 'private', 'protected', 'interface', 'enum' or 'class'.");
 			}
+		}
+		
+		private void setAnnotations(JavaParserEnvironment environment) {
+			final Set<Instance<Annotation>> annotations = environment.getAnnotations();
+			environment.getCurrentClass().getAnnotations().addAll(annotations);
+			annotations.clear();
 		}
 		
 	},
@@ -168,6 +196,7 @@ public enum JavaParserState {
 			
 			switch (word) {
 				case "{":
+					environment.openBlock();
 					environment.setState(CLASS_INNER);
 					break;
 				case "implements":
@@ -176,7 +205,7 @@ public enum JavaParserState {
 					environment.setState(CLASS_EXTENSION);
 					break;
 				default:
-					environment.getPublicClass().setName(word);
+					environment.getCurrentClass().setName(word);
 					environment.setState(CLASS_EXTENSION);
 					break;
 			}
@@ -206,33 +235,69 @@ public enum JavaParserState {
 					case ",":
 						break;
 					default:
-						final Class clazz = environment.getPublicClass().getRelativeClass(word);
+						final Class clazz = environment.getCurrentClass().getRelativeClass(word);
 						
 						if (mode == EXTENDS_MODE) {
-							environment.getPublicClass().setSuperclass(clazz);
+							environment.getCurrentClass().setSuperclass(clazz);
 						} else if (mode == IMPLEMENTS_MODE) {
 							if (clazz.getKind() == null) {
 								clazz.setKind(Kind.INTERFACE);
 							} else if (clazz.getKind() != Kind.INTERFACE) {
 								throw new IllegalArgumentException("A class cannot implements a " + clazz.getKind());
 							}
-							environment.getPublicClass().getInterfaces().add(clazz);
+							environment.getCurrentClass().getInterfaces().add(clazz);
 						}
 						break;
 				}
 				word = environment.nextWord();
 			}
 			
-			if (environment.getPublicClass().getSuperclass() == null) {
-				final Class object = ((Package) environment.getPublicClass().parent()).getClass("java.lang.Object");
-				environment.getPublicClass().setSuperclass(object);
+			if (environment.getCurrentClass().getSuperclass() == null) {
+				final Class object = ((Package) environment.getCurrentClass().parent()).getClass("java.lang.Object");
+				environment.getCurrentClass().setSuperclass(object);
 			}
 			
+			environment.openBlock();
 			environment.setState(CLASS_INNER);
 		}
 		
 	},
-	CLASS_INNER,
+	CLASS_INNER {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			String word = environment.nextWord();
+			
+			final int parentScope = environment.getBlocks() - 1;
+			
+			while (environment.getBlocks() > parentScope) {
+				if ("{".equals(word)) {
+					environment.openBlock();
+				} else if ("}".equals(word)) {
+					environment.closeBlock();
+				}
+				// TODO: Handle fields, methods and inner classes.
+				word = environment.nextWord();
+			}
+			
+			final Deque<Class> classStack = environment.getClassStack();
+			
+			final Class clazz = classStack.pop();
+			if (classStack.isEmpty()) {
+				if (clazz.getVisibility() == Visibility.PUBLIC) {
+					if (environment.getSourceFile().getPublicClass() != null) {
+						throw new IllegalArgumentException("A source file cannot have more than one outer public class.");
+					}
+					environment.getSourceFile().setPublicClass(clazz);
+				} else {
+					environment.getSourceFile().getOtherClasses().add(clazz);
+				}
+			} else {
+				classStack.peek().children().add(clazz);
+			}
+		}
+		
+	},
 	FIELD,
 	FIELD_ANNOTATION,
 	METHOD,

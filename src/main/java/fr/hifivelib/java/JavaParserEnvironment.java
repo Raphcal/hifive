@@ -1,6 +1,10 @@
 package fr.hifivelib.java;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /*
  * #%L
@@ -39,15 +43,19 @@ public class JavaParserEnvironment {
 	private Iterator<String> wordIterator;
 	private String lastWord;
 	
-	private SourceFile sourceFile = new SourceFile();
-	private Class publicClass = new Class();
+	private final SourceFile sourceFile = new SourceFile();
+	private final Deque<Class> classStack = new ArrayDeque<>();
+	
+	private final Set<Instance<Annotation>> annotations = new LinkedHashSet<>();
+	
+	private int blocks;
 
 	public JavaParserEnvironment(final Iterator<String> wordIterator) {
 		this.wordIterator = wordIterator;
 	}
 
 	public boolean hasNext() {
-		return wordIterator.hasNext() || lastWord != null;
+		return wordIterator.hasNext();
 	}
 	
 	public String nextWord() {
@@ -92,9 +100,29 @@ public class JavaParserEnvironment {
 	public SourceFile getSourceFile() {
 		return sourceFile;
 	}
+
+	public Deque<Class> getClassStack() {
+		return classStack;
+	}
 	
-	public Class getPublicClass() {
-		return sourceFile.getPublicClass();
+	public Class getCurrentClass() {
+		return classStack.peek();
+	}
+
+	public Set<Instance<Annotation>> getAnnotations() {
+		return annotations;
+	}
+
+	public void openBlock() {
+		blocks++;
+	}
+	
+	public void closeBlock() {
+		blocks--;
+	}
+
+	public int getBlocks() {
+		return blocks;
 	}
 
 }

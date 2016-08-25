@@ -59,19 +59,25 @@ public class Class implements Node {
 		return name;
 	}
 	
+	private SourceFile sourceFile;
+	
 	private Node parent;
 	private String name;
 	private Kind kind;
-	private Visibility visibility;
+	private Visibility visibility = Visibility.PACKAGE;
 	
 	private Collection<Node> innerClasses;
 	
-	private final Set<Class> imports = new LinkedHashSet<>();
 	private final Set<Instance<Annotation>> annotations = new LinkedHashSet<>();
 	private Class superclass;
 	private final Set<Class> interfaces = new LinkedHashSet<>();
 	
 	public Class() {
+	}
+	
+	public Class(SourceFile sourceFile) {
+		this.sourceFile = sourceFile;
+		this.parent = sourceFile.getPackage();
 	}
 
 	public Class(Node parent, String name) {
@@ -135,7 +141,6 @@ public class Class implements Node {
 				visibility = otherClass.visibility;
 			}
 			Nodes.mergeNodes(innerClasses, otherClass.innerClasses);
-			Nodes.mergeNodes(imports, otherClass.imports);
 			Nodes.mergeNodes(annotations, otherClass.annotations);
 			if (superclass == null) {
 				// TODO: Maybe create a special case for java.lang.Object ?
@@ -146,34 +151,9 @@ public class Class implements Node {
 			throw new IllegalArgumentException("Node must be a class.");
 		}
 	}
-	
-	/**
-	 * Sets the package by its full name.
-	 * <p>
-	 * The package can be set only once. Every further call to this method
-	 * will throw an <code>IllegalArgumentException</code>.
-	 * 
-	 * @param packageFullName Full name of the package.
-	 */
-	public void setPackage(final String packageFullName) {
-		if (this.parent != null) {
-			throw new IllegalArgumentException("Multiple package declaration found. Package is defined to '" + parent.getFullName() + "' and is trying to be set to '" + packageFullName + "'.");
-		}
-		
-		final Package packageOfThisClass = Package.createPackageWithFullName(packageFullName);
-		this.parent = packageOfThisClass;
-		packageOfThisClass.add(this);
-		
-		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());
-	}
 
-	/**
-	 * Returns the class imported by this one.
-	 * 
-	 * @return the class imported by this one.
-	 */
-	public Collection<Class> getImports() {
-		return imports;
+	public void setParent(Node parent) {
+		this.parent = parent;
 	}
 
 	public Class getSubClassFromFullName(final String fullName) {
@@ -190,7 +170,7 @@ public class Class implements Node {
 				return samePackageClass;
 			}
 
-			for (final Class importedClass : imports) {
+			for (final Class importedClass : sourceFile.getImports()) {
 				if (name.equals(importedClass.getName())) {
 					return importedClass;
 				}
@@ -203,6 +183,10 @@ public class Class implements Node {
 		}
 		
 		return parentPackage.getClass(name);
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
 	}
 	
 	public void setVisibility(Visibility visibility) {
