@@ -1,6 +1,9 @@
 package fr.hifivelib.java;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /*
  * #%L
@@ -39,7 +42,12 @@ public class JavaParserEnvironment {
 	private Iterator<String> wordIterator;
 	private String lastWord;
 	
-	private Class publicClass = new Class();
+	private Node peek = new Package(null, "");
+	
+	private List<Class> imports = new ArrayList<>();
+	private List<Instance<Class>> annotations = new ArrayList<>();
+	
+	private Class publicClass;
 
 	public JavaParserEnvironment(final Iterator<String> wordIterator) {
 		this.wordIterator = wordIterator;
@@ -90,6 +98,80 @@ public class JavaParserEnvironment {
 
 	public Class getPublicClass() {
 		return publicClass;
+	}
+
+	public Node peek() {
+		return peek;
+	}
+	
+	public void push(Node node) {
+		this.peek.add(node);
+		node.setParent(this.peek);
+		this.peek = node;
+	}
+	
+	public Node pop() {
+		final Node node = peek;
+		this.peek = peek.parent();
+		return node;
+	}
+	
+	public Package topPackage() {
+		Node node = peek;
+		
+		while (node != null) {
+			if (node instanceof Package) {
+				return (Package) node;
+			}
+			node = node.parent();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Adds a new import by its full name.
+	 * 
+	 * @param importedClass Full name of the class to import.
+	 */
+	public void addImport(final String importedClass) {
+		if (peek instanceof Package) {
+			imports.add(topPackage().getClass(importedClass));
+		} else {
+			throw new IllegalStateException("Only public outer classes can import classes.");
+		}
+	}
+	
+	public void addAnnotation(final Class annotation, Map<String, String> values) {
+		annotations.add(new Instance<>(annotation));
+	}
+
+	public List<Class> getImports() {
+		return imports;
+	}
+	
+	public Class getClassWithRelativeName(final String name) {
+		final Package parentPackage = topPackage();
+		
+		if (name.indexOf('.') == -1) {
+			final Node samePackageClass = parentPackage.get(name);
+			if (samePackageClass instanceof Class) {
+				return (Class) samePackageClass;
+			}
+
+			for (final Class importedClass : imports) {
+				if (name.equals(importedClass.getName())) {
+					return importedClass;
+				}
+			}
+
+			final Class javaLangClass = parentPackage.getClass("java.lang." + name, false);
+			if (javaLangClass != null) {
+				return javaLangClass;
+			}
+		}
+		
+		return parentPackage.getClass(name);
 	}
 	
 }

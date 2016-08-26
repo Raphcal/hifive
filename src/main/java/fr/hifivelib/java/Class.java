@@ -91,6 +91,14 @@ public class Class implements Node {
 	public Node parent() {
 		return parent;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setParent(Node parent) {
+		this.parent = parent;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -100,6 +108,11 @@ public class Class implements Node {
 		return innerClasses;
 	}
 
+	@Override
+	public void add(Node node) {
+		Nodes.addOrMerge(node, innerClasses);
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -167,19 +180,6 @@ public class Class implements Node {
 		packageOfThisClass.mergeFromRoot(Package.getJavaLangPackage());
 	}
 	
-	/**
-	 * Adds a new import by its full name.
-	 * 
-	 * @param importedClass Full name of the class to import.
-	 */
-	public void addImport(final String importedClass) {
-		if (parent instanceof Package) {
-			imports.add(((Package) parent).getClass(importedClass));
-		} else {
-			throw new IllegalStateException("Only public outer classes can import classes.");
-		}
-	}
-
 	/**
 	 * Returns the class imported by this one.
 	 * 

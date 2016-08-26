@@ -78,6 +78,14 @@ public class Annotation implements Node {
 	public Node parent() {
 		return parent;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setParent(Node parent) {
+		this.parent = parent;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -85,6 +93,14 @@ public class Annotation implements Node {
 	@Override
 	public Collection<Node> children() {
 		return Collections.emptyList();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void add(Node node) {
+		throw new UnsupportedOperationException("Not supported.");
 	}
 
 	/**

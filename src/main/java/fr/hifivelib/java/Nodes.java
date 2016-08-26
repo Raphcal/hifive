@@ -79,6 +79,16 @@ public final class Nodes {
 		destination.addAll(newNodes);
 	}
 	
+	public static <T extends Node> void addOrMerge(T node, Collection<T> nodes) {
+		final T existingNode = findByName(nodes, node.getName());
+		
+		if (existingNode == null) {
+			nodes.add(node);
+		} else {
+			existingNode.merge(node);
+		}
+	}
+	
 	/**
 	 * Concatene the given <code>name</code> with the full name of the
 	 * <code>parent</code>.

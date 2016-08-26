@@ -1,6 +1,7 @@
 package fr.hifivelib.java;
 
 import java.util.Collection;
+import java.util.Map;
 
 /*
  * #%L
@@ -58,6 +59,22 @@ public class Instance<T extends Node> implements Node {
 	 */
 	@Override
 	public Node parent() {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setParent(Node parent) {
+		throw new UnsupportedOperationException("Not supported.");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void add(Node node) {
 		throw new UnsupportedOperationException("Not supported.");
 	}
 

@@ -149,6 +149,10 @@ public class Package implements Node {
 	public Package() {
 	}
 
+	public Package(String name) {
+		this.name = name;
+	}
+
 	public Package(Package parent, String name) {
 		this.parent = parent;
 		this.name = name;
@@ -159,8 +163,13 @@ public class Package implements Node {
 		return parent;
 	}
 	
-	public void setParent(Package parent) {
-		this.parent = parent;
+	@Override
+	public void setParent(Node parent) {
+		if (parent instanceof Package) {
+			this.parent = (Package) parent;
+		} else {
+			throw new IllegalArgumentException("Only a package can be the parent of an other package.");
+		}
 	}
 
 	@Override
@@ -188,8 +197,12 @@ public class Package implements Node {
 		return Nodes.fullName(parent, name);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void add(Node node) {
-		children.add(node);
+		Nodes.addOrMerge(node, children);
 	}
 	
 	public Class getClass(final String classFullName) {

@@ -1,5 +1,7 @@
 package fr.hifivelib.java;
 
+import java.util.regex.Pattern;
+
 /*
  * #%L
  * Hifive
@@ -40,20 +42,15 @@ public enum JavaParserState {
 				environment.setState(PACKAGE_DECLARATION);
 				break;
 			case "import":
-				environment.getPublicClass().setPackage("");
 				environment.setState(IMPORT_DECLARATION);
 				break;
 			case "public":
-			case "protected":
-			case "private":
 			case "class":
-				environment.getPublicClass().setPackage("");
 				environment.rewind();
 				environment.setState(CLASS_START);
 				break;
 			default:
 				if (!word.isEmpty() && word.charAt(0) == '@') {
-					environment.getPublicClass().setPackage("");
 					environment.setState(CLASS_ANNOTATION);
 				}
 				break;
@@ -70,7 +67,9 @@ public enum JavaParserState {
 			if (";".equals(word)) {
 				environment.setState(WAITING_FOR_CLASS);
 			} else {
-				environment.getPublicClass().setPackage(word);
+				for (final String packageName : word.split(Pattern.quote(Character.toString(Nodes.SEPARATOR)))) {
+					environment.push(new Package(packageName));
+				}
 			}
 		}
 		
@@ -88,8 +87,6 @@ public enum JavaParserState {
 				environment.setState(IMPORT_DECLARATION);
 				break;
 			case "public":
-			case "protected":
-			case "private":
 			case "class":
 				environment.rewind();
 				environment.setState(CLASS_START);
@@ -113,7 +110,7 @@ public enum JavaParserState {
 			if (";".equals(word)) {
 				environment.setState(WAITING_FOR_CLASS);
 			} else {
-				environment.getPublicClass().addImport(word);
+				environment.addImport(word);
 			}
 		}
 		
@@ -126,9 +123,8 @@ public enum JavaParserState {
 			
 			// TODO: Handle annotation arguments.
 			if (!word.isEmpty() && word.charAt(0) == '@') {
-				final Class annotationClass = environment.getPublicClass().getRelativeClass(word.substring(1));
-				final Annotation annotation = Annotation.from(annotationClass);
-				environment.getPublicClass().getAnnotations().add(new Instance<>(annotation));
+				final Class annotationClass = environment.getClassWithRelativeName(word.substring(1));
+				environment.addAnnotation(annotationClass, null);
 			}
 			
 			environment.setState(WAITING_FOR_CLASS);
@@ -145,9 +141,6 @@ public enum JavaParserState {
 				case "public":
 					environment.getPublicClass().setVisibility(Visibility.PUBLIC);
 					break;
-				case "private":
-				case "protected":
-					throw new UnsupportedOperationException("Not supported yet");
 				case "interface":
 				case "enum":
 				case "class":

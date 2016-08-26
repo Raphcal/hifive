@@ -57,11 +57,25 @@ public interface Node {
 	Node parent();
 	
 	/**
+	 * Sets the parent of this node.
+	 * 
+	 * @param parent the parent of this node.
+	 */
+	void setParent(Node parent);
+	
+	/**
 	 * Returns the children of this node.
 	 * 
 	 * @return the children of this node or an empty collection of none exists.
 	 */
 	Collection<Node> children();
+	
+	/**
+	 * Add the given node to the children.
+	 * 
+	 * @param node Node to add.
+	 */
+	void add(Node node);
 	
 	/**
 	 * Merge the content of this node with the content of the given node.
