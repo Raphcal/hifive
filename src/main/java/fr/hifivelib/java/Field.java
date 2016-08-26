@@ -31,7 +31,35 @@ import java.util.Collection;
  */
 public class Field {
 	
+	private Visibility visibility;
+	private Class type;
 	private String name;
 	private Collection<Annotation> annotations;
+
+	public Field() {
+	}
+
+	public Field(Visibility visibility, Class type, String name, Collection<Annotation> annotations) {
+		this.visibility = visibility;
+		this.type = type;
+		this.name = name;
+		this.annotations = annotations;
+	}
+
+	public Visibility getVisibility() {
+		return visibility;
+	}
+
+	public Class getType() {
+		return type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public Collection<Annotation> getAnnotations() {
+		return annotations;
+	}
 	
 }

@@ -74,9 +74,9 @@ public class StringWordIteratorTest {
 	@Test
 	public void testNext() {
 		System.out.println("next");
-		StringWordIterator instance = new StringWordIterator(new StringCharacterIterator("final String s = \"Pas; de contenu ?\";\n"
+		StringWordIterator instance = new StringWordIterator(new StringCharacterIterator("final String s(String a) = \"Pas; de contenu ?\";\n"
 				+ "final char c = 'a';"));
-		final String[] expected = {"final", "String", "s", "=", "Pas; de contenu ?", ";", "final", "char", "c", "=", "a", ";"};
+		final String[] expected = {"final", "String", "s", "(", "String", "a", ")", "=", "Pas; de contenu ?", ";", "final", "char", "c", "=", "a", ";"};
 		
 		for (final String entry : expected) {
 			assertTrue("The iterator has no more word but it should have.", instance.hasNext());

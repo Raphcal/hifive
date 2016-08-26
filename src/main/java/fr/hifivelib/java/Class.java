@@ -22,8 +22,10 @@ package fr.hifivelib.java;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -71,6 +73,8 @@ public class Class implements Node {
 	private final Set<Instance<Annotation>> annotations = new LinkedHashSet<>();
 	private Class superclass;
 	private final Set<Class> interfaces = new LinkedHashSet<>();
+	
+	private final List<Field> fields = new ArrayList<>();
 	
 	public Class() {
 	}
@@ -215,6 +219,10 @@ public class Class implements Node {
 
 	public Set<Instance<Annotation>> getAnnotations() {
 		return annotations;
+	}
+
+	public List<Field> getFields() {
+		return fields;
 	}
 
 }

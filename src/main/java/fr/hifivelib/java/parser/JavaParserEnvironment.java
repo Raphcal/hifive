@@ -6,8 +6,10 @@ import fr.hifivelib.java.Instance;
 import fr.hifivelib.java.SourceFile;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /*
@@ -49,6 +51,8 @@ public class JavaParserEnvironment {
 	
 	private final SourceFile sourceFile = new SourceFile();
 	private final Deque<Class> classStack = new ArrayDeque<>();
+	
+	private final Map<Class, Integer> scopes = new HashMap<>();
 	
 	private final Set<Instance<Annotation>> annotations = new LinkedHashSet<>();
 	
@@ -127,6 +131,10 @@ public class JavaParserEnvironment {
 
 	public int getBlocks() {
 		return blocks;
+	}
+
+	public Map<Class, Integer> getScopes() {
+		return scopes;
 	}
 
 }

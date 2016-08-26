@@ -92,9 +92,15 @@ public class ClassExtension {
 	
 	// Generated
 	
-	class LazySampleEntity extends SampleEntity {
+	interface LazyEntity {
+		
+		void fetchAll();
+		
+	}
+	
+	class LazySampleEntity extends SampleEntity implements LazyEntity {
 
-		private HiFiveSampleEntryDAO sampleEntryDAO;
+		private EntityManager entityManager;
 		
 		/**
 		 * Lazy implementation of {@link SampleEntity#getEntries()}.
@@ -105,10 +111,31 @@ public class ClassExtension {
 		public Set<SampleEntry> getEntries() {
 			Set<SampleEntry> entries = super.getEntries();
 			if (entries == null) {
-				entries = sampleEntryDAO.getSampleEntriesBySampleEntity(this);
+				entries = entityManager.findSampleEntriesBySampleEntity(this);
 				setEntries(entries);
 			}
 			return entries;
+		}
+
+		@Override
+		public void fetchAll() {
+			getEntries();
+		}
+		
+	}
+	
+	class EntityManager {
+		
+		SampleEntity findByPrimaryKey(final Integer id) {
+			return null;
+		}
+		
+		SampleEntry findByPrimaryKey(final String category, final Integer section) {
+			return null;
+		}
+		
+		public Set<SampleEntry> findSampleEntriesBySampleEntity(final SampleEntity entry) {
+			return Collections.<SampleEntry>emptySet();
 		}
 		
 	}
@@ -127,15 +154,4 @@ public class ClassExtension {
 		
 	}
 	
-	class HiFiveSampleEntryDAO {
-		
-		public SampleEntry getSampleEntryByPrimaryKey(final String category, final Integer section) {
-			return null;
-		}
-		
-		public Set<SampleEntry> getSampleEntriesBySampleEntity(final SampleEntity entry) {
-			return Collections.<SampleEntry>emptySet();
-		}
-		
-	}
 }

@@ -88,6 +88,7 @@ public class JavaParserTest {
 				"\n" +
 				"@Test\n" +
 				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, MyInterface {\n" +
+				"\n" +
 				"	private String name;\n" +
 				"\n" +
 				"	@Test\n" +
@@ -99,6 +100,8 @@ public class JavaParserTest {
 				"	}\n" +
 				"}");
 		final Class publicClass = sourceFile.getPublicClass();
+		assertNotNull(publicClass);
+		
 		assertEquals("JavaParserTest", publicClass.getName());
 		assertEquals("fr.hifivelib.java", publicClass.parent().getFullName());
 		assertEquals("fr.hifivelib.java.JavaParserTest", publicClass.getFullName());
@@ -122,6 +125,11 @@ public class JavaParserTest {
 			assertEquals(strings.next(), importedClass.getFullName());
 			assertEquals(Kind.INTERFACE, importedClass.getKind());
 		}
+		
+		assertEquals(1, publicClass.getFields().size());
+		final Field field = publicClass.getFields().get(0);
+		assertEquals("name", field.getName());
+		assertEquals("java.lang.String", field.getType().getFullName());
 	}
 	
 }

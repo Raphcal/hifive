@@ -2,6 +2,7 @@ package fr.hifivelib.java.parser;
 
 import fr.hifivelib.java.Annotation;
 import fr.hifivelib.java.Class;
+import fr.hifivelib.java.Field;
 import fr.hifivelib.java.Instance;
 import fr.hifivelib.java.Kind;
 import fr.hifivelib.java.Package;
@@ -272,18 +273,36 @@ public enum JavaParserState {
 		
 		@Override
 		public void execute(JavaParserEnvironment environment) {
-			String word = environment.nextWord();
+			final Class currentClass = environment.getCurrentClass();
+			Integer scope = environment.getScopes().get(currentClass);
+			if (scope == null) {
+				scope = environment.getBlocks();
+				environment.getScopes().put(currentClass, scope);
+			}
 			
-			final int parentScope = environment.getBlocks() - 1;
+			final int parentScope = scope - 1;
 			
-			while (environment.getBlocks() > parentScope) {
-				if ("{".equals(word)) {
-					environment.openBlock();
-				} else if ("}".equals(word)) {
-					environment.closeBlock();
-				}
+			while (environment.hasNext() && environment.getBlocks() > parentScope) {
+				final String word = environment.nextWord();
+				
 				// TODO: Handle fields, methods and inner classes.
-				word = environment.nextWord();
+				switch (word) {
+					case "{":
+						environment.openBlock();
+						break;
+						
+					case "}":
+						environment.closeBlock();
+						break;
+						
+					default:
+						if (environment.getBlocks() == scope) {
+							environment.rewind();
+							environment.setState(FIELD_OR_METHOD);
+							return;
+						}
+						break;
+				}
 			}
 			
 			final Deque<Class> classStack = environment.getClassStack();
@@ -304,9 +323,66 @@ public enum JavaParserState {
 		}
 		
 	},
+	FIELD_OR_METHOD {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			Visibility visibility = Visibility.PACKAGE;
+			Class returnType = null;
+			String name = null;
+			
+			while (environment.hasNext()) {
+				final String word = environment.nextWord();
+				
+				switch (word) {
+					case "private":
+					case "protected":
+					case "public":
+						visibility = Visibility.valueOf(word.toUpperCase());
+						break;
+						
+					case "(":
+						environment.setState(METHOD);
+						return;
+						
+					case ";":
+						final Class currentClass = environment.getCurrentClass();
+						// TODO: Should support annotations.
+						currentClass.getFields().add(new Field(visibility, returnType, name, null));
+						
+						environment.setState(CLASS_INNER);
+						return;
+
+					default:
+						if (returnType == null) {
+							returnType = environment.getSourceFile().getRelativeClass(word);
+						}
+						else if (name == null) {
+							name = word;
+						}
+						break;
+				}
+			}
+		}
+		
+	},
 	FIELD,
 	FIELD_ANNOTATION,
-	METHOD,
+	METHOD {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			// TODO: Handle this state.
+			while (environment.hasNext()) {
+				final String word = environment.nextWord();
+				if (")".equals(word)) {
+					environment.setState(CLASS_INNER);
+					return;
+				}
+			}
+		}
+		
+	},
 	LINE_END_COMMENT,
 	BLOC_COMMENT,
 	JAVADOC;
