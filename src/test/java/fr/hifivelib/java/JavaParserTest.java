@@ -88,28 +88,37 @@ public class JavaParserTest {
 				"\n" +
 				"@Test\n" +
 				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, MyInterface {\n" +
+				"	private String name;\n" +
+				"\n" +
+				"	@Test\n" +
+				"	public void testParseSourceFromString() {\n" +
+				"		System.out.println(\"parseSourceFromString\");\n" +
+				"		for (final Class importedClass : sourceFile.getImports()) {\n" +
+				"			assertEquals(strings.next(), importedClass.getFullName());\n" +
+				"		}\n" +
+				"	}\n" +
 				"}");
-		final Class result = sourceFile.getPublicClass();
-		assertEquals("JavaParserTest", result.getName());
-		assertEquals("fr.hifivelib.java", result.parent().getFullName());
-		assertEquals("fr.hifivelib.java.JavaParserTest", result.getFullName());
-		assertEquals(4, sourceFile.getImports().size());
+		final Class publicClass = sourceFile.getPublicClass();
+		assertEquals("JavaParserTest", publicClass.getName());
+		assertEquals("fr.hifivelib.java", publicClass.parent().getFullName());
+		assertEquals("fr.hifivelib.java.JavaParserTest", publicClass.getFullName());
 		
+		assertEquals(4, sourceFile.getImports().size());
 		Iterator<String> strings = Arrays.asList("java.io.File", "org.junit.Test", "org.junit.Assert", "fr.hifivelib.annotation.MyInterface").iterator();
 		for (final Class importedClass : sourceFile.getImports()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 		}
 		
-		assertEquals(1, result.getAnnotations().size());
-		assertEquals("org.junit.Test", result.getAnnotations().iterator().next().getFullName());
+		assertEquals(1, publicClass.getAnnotations().size());
+		assertEquals("org.junit.Test", publicClass.getAnnotations().iterator().next().getFullName());
 		
-		assertEquals("java.lang.Boolean", result.getSuperclass().getFullName());
-		assertNotSame(Kind.ENUM, result.getSuperclass().getKind());
-		assertNotSame(Kind.INTERFACE, result.getSuperclass().getKind());
-		assertEquals(2, result.getInterfaces().size());
+		assertEquals("java.lang.Boolean", publicClass.getSuperclass().getFullName());
+		assertNotSame(Kind.ENUM, publicClass.getSuperclass().getKind());
+		assertNotSame(Kind.INTERFACE, publicClass.getSuperclass().getKind());
+		assertEquals(2, publicClass.getInterfaces().size());
 		
 		strings = Arrays.asList("fr.hifivelib.other.SomeInterface", "fr.hifivelib.annotation.MyInterface").iterator();
-		for (final Class importedClass : result.getInterfaces()) {
+		for (final Class importedClass : publicClass.getInterfaces()) {
 			assertEquals(strings.next(), importedClass.getFullName());
 			assertEquals(Kind.INTERFACE, importedClass.getKind());
 		}
