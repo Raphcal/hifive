@@ -1,5 +1,9 @@
-package fr.hifivelib.java;
+package fr.hifivelib.java.parser;
 
+import fr.hifivelib.java.Annotation;
+import fr.hifivelib.java.Class;
+import fr.hifivelib.java.Instance;
+import fr.hifivelib.java.SourceFile;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;

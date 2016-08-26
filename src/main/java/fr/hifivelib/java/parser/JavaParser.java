@@ -1,4 +1,4 @@
-package fr.hifivelib.java;
+package fr.hifivelib.java.parser;
 
 /*
  * #%L
@@ -22,36 +22,33 @@ package fr.hifivelib.java;
  * #L%
  */
 
+import fr.hifivelib.java.SourceFile;
+import java.io.File;
 import java.util.Iterator;
 
 /**
- * Iterator for the characters of a <code>String</code>.
+ * Parser of Java source files.
  * 
- * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
+ * @author Raphaël Calabro (ddaeke-github at yahoo.fr)
  */
-public class StringCharacterIterator implements Iterator<Character> {
-
-	private final char[] characters;
-	private int cursor;
+public class JavaParser {
 	
-	public StringCharacterIterator(final String source) {
-		this.characters = source.toCharArray();
+	public SourceFile parseSourceFromFile(final File sourceFile) {
+		return parse(null);
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasNext() {
-		return cursor < characters.length;
+	
+	public SourceFile parseSourceFromString(final String source) {
+		return parse(new StringWordIterator(source));
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Character next() {
-		return characters[cursor++];
+	
+	private SourceFile parse(final Iterator<String> wordIterator) {
+		final JavaParserEnvironment environment = new JavaParserEnvironment(wordIterator);
+		
+		while (environment.hasNext()) {
+			environment.getState().execute(environment);
+		}
+		
+		return environment.getSourceFile();
 	}
 	
 }

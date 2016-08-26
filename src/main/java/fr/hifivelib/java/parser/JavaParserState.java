@@ -1,5 +1,11 @@
-package fr.hifivelib.java;
+package fr.hifivelib.java.parser;
 
+import fr.hifivelib.java.Annotation;
+import fr.hifivelib.java.Class;
+import fr.hifivelib.java.Instance;
+import fr.hifivelib.java.Kind;
+import fr.hifivelib.java.Package;
+import fr.hifivelib.java.Visibility;
 import java.util.Deque;
 import java.util.Set;
 

@@ -1,4 +1,4 @@
-package fr.hifivelib.java;
+package fr.hifivelib.java.parser;
 
 /*
  * #%L

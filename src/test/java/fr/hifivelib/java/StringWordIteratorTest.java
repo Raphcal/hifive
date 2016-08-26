@@ -22,6 +22,8 @@ package fr.hifivelib.java;
  * #L%
  */
 
+import fr.hifivelib.java.parser.StringWordIterator;
+import fr.hifivelib.java.parser.StringCharacterIterator;
 import java.util.Iterator;
 import org.junit.Test;
 import static org.junit.Assert.*;
