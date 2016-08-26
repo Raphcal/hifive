@@ -129,6 +129,7 @@ public class JavaParserTest {
 		
 		assertEquals(1, publicClass.getFields().size());
 		final Field field = publicClass.getFields().get(0);
+		assertEquals(Visibility.PRIVATE, field.getVisibility());
 		assertEquals("name", field.getName());
 		assertEquals("java.lang.String", field.getType().getFullName());
 		assertEquals("java.lang.Override", field.getAnnotations().iterator().next().getFullName());
