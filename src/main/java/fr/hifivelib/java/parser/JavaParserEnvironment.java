@@ -120,6 +120,12 @@ public class JavaParserEnvironment {
 	public Set<Instance<Annotation>> getAnnotations() {
 		return annotations;
 	}
+	
+	public Set<Instance<Annotation>> popAnnotations() {
+		final Set<Instance<Annotation>> value = new LinkedHashSet<>(annotations);
+		annotations.clear();
+		return value;
+	}
 
 	public void openBlock() {
 		blocks++;

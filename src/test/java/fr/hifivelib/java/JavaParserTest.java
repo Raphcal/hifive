@@ -89,6 +89,7 @@ public class JavaParserTest {
 				"@Test\n" +
 				"public class JavaParserTest extends Boolean implements fr.hifivelib.other.SomeInterface, MyInterface {\n" +
 				"\n" +
+				"	@Override\n" +
 				"	private String name;\n" +
 				"\n" +
 				"	@Test\n" +
@@ -130,6 +131,7 @@ public class JavaParserTest {
 		final Field field = publicClass.getFields().get(0);
 		assertEquals("name", field.getName());
 		assertEquals("java.lang.String", field.getType().getFullName());
+		assertEquals("java.lang.Override", field.getAnnotations().iterator().next().getFullName());
 	}
 	
 }

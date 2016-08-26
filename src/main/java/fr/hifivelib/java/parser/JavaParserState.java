@@ -173,25 +173,19 @@ public enum JavaParserState {
 					break;
 				case "@interface":
 					environment.getCurrentClass().setKind(Kind.ANNOTATION);
-					setAnnotations(environment);
+					environment.getCurrentClass().getAnnotations().addAll(environment.popAnnotations());
 					environment.setState(CLASS_NAME);
 					break;
 				case "interface":
 				case "enum":
 				case "class":
 					environment.getCurrentClass().setKind(Kind.valueOf(word.toUpperCase()));
-					setAnnotations(environment);
+					environment.getCurrentClass().getAnnotations().addAll(environment.popAnnotations());
 					environment.setState(CLASS_NAME);
 					break;
 				default:
 					throw new IllegalArgumentException("'" + word + "' is not valid. Should be one of 'public', 'private', 'protected', 'interface', 'enum' or 'class'.");
 			}
-		}
-		
-		private void setAnnotations(JavaParserEnvironment environment) {
-			final Set<Instance<Annotation>> annotations = environment.getAnnotations();
-			environment.getCurrentClass().getAnnotations().addAll(annotations);
-			annotations.clear();
 		}
 		
 	},
@@ -295,10 +289,18 @@ public enum JavaParserState {
 						environment.closeBlock();
 						break;
 						
+					case ";":
+						// Ignored.
+						break;
+						
 					default:
 						if (environment.getBlocks() == scope) {
 							environment.rewind();
-							environment.setState(FIELD_OR_METHOD);
+							if (!word.isEmpty() && word.charAt(0) == '@') {
+								environment.setState(FIELD_ANNOTATION);
+							} else {
+								environment.setState(FIELD_OR_METHOD);
+							}
 							return;
 						}
 						break;
@@ -348,7 +350,7 @@ public enum JavaParserState {
 					case ";":
 						final Class currentClass = environment.getCurrentClass();
 						// TODO: Should support annotations.
-						currentClass.getFields().add(new Field(visibility, returnType, name, null));
+						currentClass.getFields().add(new Field(visibility, returnType, name, environment.popAnnotations()));
 						
 						environment.setState(CLASS_INNER);
 						return;
@@ -367,7 +369,32 @@ public enum JavaParserState {
 		
 	},
 	FIELD,
-	FIELD_ANNOTATION,
+	FIELD_ANNOTATION {
+		
+		@Override
+		public void execute(JavaParserEnvironment environment) {
+			final String annotationName = environment.nextWord();
+			
+			if (environment.hasNext()) {
+				String word = environment.nextWord();
+				if ("(".equals(word)) {
+					while (!")".equals(word) && environment.hasNext()) {
+						// TODO: Handle arguments.
+						word = environment.nextWord();
+					}
+				} else {
+					environment.rewind();
+				}
+			}
+			
+			final Class annotationClass = environment.getSourceFile().getRelativeClass(annotationName.substring(1));
+			final Annotation annotation = Annotation.from(annotationClass);
+			environment.getAnnotations().add(new Instance<>(annotation));
+			
+			environment.setState(CLASS_INNER);
+		}
+		
+	},
 	METHOD {
 		
 		@Override
@@ -376,6 +403,7 @@ public enum JavaParserState {
 			while (environment.hasNext()) {
 				final String word = environment.nextWord();
 				if (")".equals(word)) {
+					environment.popAnnotations();
 					environment.setState(CLASS_INNER);
 					return;
 				}

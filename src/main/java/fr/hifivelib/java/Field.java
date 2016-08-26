@@ -34,12 +34,12 @@ public class Field {
 	private Visibility visibility;
 	private Class type;
 	private String name;
-	private Collection<Annotation> annotations;
+	private Collection<Instance<Annotation>> annotations;
 
 	public Field() {
 	}
 
-	public Field(Visibility visibility, Class type, String name, Collection<Annotation> annotations) {
+	public Field(Visibility visibility, Class type, String name, Collection<Instance<Annotation>> annotations) {
 		this.visibility = visibility;
 		this.type = type;
 		this.name = name;
@@ -58,7 +58,7 @@ public class Field {
 		return name;
 	}
 
-	public Collection<Annotation> getAnnotations() {
+	public Collection<Instance<Annotation>> getAnnotations() {
 		return annotations;
 	}
 	
